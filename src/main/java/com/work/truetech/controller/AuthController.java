@@ -1,6 +1,7 @@
 package com.work.truetech.controller;
 
 import com.work.truetech.config.JwtUtil;
+import com.work.truetech.services.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -68,7 +69,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
-        final String jwt = jwtUtil.generateToken(userDetails); // No need to pass the User entity here
+        final String jwt = jwtUtil.generateToken((CustomUserDetails) userDetails); // No need to pass the User entity here
 
         return ResponseEntity.ok(new AuthenticationResponse(jwt));
     }

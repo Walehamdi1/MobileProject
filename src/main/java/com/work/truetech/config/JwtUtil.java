@@ -2,6 +2,7 @@ package com.work.truetech.config;
 
 import com.work.truetech.entity.User;
 import com.work.truetech.repository.UserRepository;
+import com.work.truetech.services.CustomUserDetails;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,9 +62,7 @@ public class JwtUtil {
             claims.put("phone", user.getPhone());
         }
 
-        /*System.out.println("User Email: " + user.getEmail());
-        System.out.println("User Phone: " + user.getPhone());
-        System.out.println("Claims: " + claims);*/
+
 
         return Jwts.builder()
                 .setClaims(claims)

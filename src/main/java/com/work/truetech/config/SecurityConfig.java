@@ -36,7 +36,12 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())  // Ensure CORS is applied
                 .csrf(csrf -> csrf.disable())  // Disable CSRF as it's not needed for stateless APIs
                 //.authorizeHttpRequests(httpRequests -> httpRequests.anyRequest().permitAll())
-                .authorizeHttpRequests(authz -> authz.requestMatchers("/api/**").permitAll().requestMatchers("/admin/**").hasRole("ADMIN").anyRequest().authenticated())
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/phones/**").permitAll()
+                        .requestMatchers("/models/**").permitAll()
+                        .requestMatchers("/options/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN").anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Stateless session management
 
                 // Add JWT filter before UsernamePasswordAuthenticationFilter

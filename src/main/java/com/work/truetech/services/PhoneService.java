@@ -37,6 +37,7 @@ public class PhoneService implements IPhoneService {
     public Phone createPhone(Phone phone, MultipartFile file) throws IOException {
         String uploadPath = getPhonesPath();
 
+        // Save the Phone entity first to generate an ID
         Phone savedPhone = phoneRepository.save(phone);
 
         // Ensure the upload directory exists
@@ -45,15 +46,19 @@ public class PhoneService implements IPhoneService {
             uploadDir.mkdirs();
         }
 
-        // Save the file to the server
-        String fileName = file.getOriginalFilename();
-        Path filePath = Paths.get(uploadPath, savedPhone.getId() + "_" + fileName);
+        // Get the original filename and construct the new filename
+        String originalFileName = file.getOriginalFilename();
+        String newFileName = savedPhone.getId() + "_" + originalFileName;
+
+        // Save the file to the server with the new filename
+        Path filePath = Paths.get(uploadPath, newFileName);
         Files.write(filePath, file.getBytes());
 
-        // Update the Phone entity with the file path
-        savedPhone.setImage(filePath.toString());
+        // Save only the new filename (not the full path) in the Phone entity
+        savedPhone.setImage(newFileName);
         return phoneRepository.save(savedPhone);
     }
+
 
     @Override
     public List<Phone> retrievePhones() {
@@ -68,16 +73,17 @@ public class PhoneService implements IPhoneService {
         Optional<Phone> existingPhoneOpt = phoneRepository.findById(phoneId);
 
         if (existingPhoneOpt.isPresent()) {
-
             Phone existingPhone = existingPhoneOpt.get();
+
+            // Update the title and models
             existingPhone.setTitle(updatedPhone.getTitle());
             existingPhone.setModels(updatedPhone.getModels());
+
             // Check if a new file is provided
             if (file != null && !file.isEmpty()) {
-
                 // Delete the old file if it exists
                 if (existingPhone.getImage() != null) {
-                    File oldFile = new File(existingPhone.getImage());
+                    File oldFile = new File(uploadPath, existingPhone.getImage());
                     if (oldFile.exists()) {
                         oldFile.delete();
                     }
@@ -89,16 +95,16 @@ public class PhoneService implements IPhoneService {
                     uploadDir.mkdirs();
                 }
 
+                // Generate the new filename
+                String originalFileName = file.getOriginalFilename();
+                String newFileName = existingPhone.getId() + "_" + originalFileName;
+
                 // Save the new file to the server
-                String fileName = file.getOriginalFilename();
-                Path filePath = Paths.get(uploadPath, existingPhone.getId() + "_" + fileName);
+                Path filePath = Paths.get(uploadPath, newFileName);
                 Files.write(filePath, file.getBytes());
 
-                // Update the Phone entity with the new file path
-                existingPhone.setImage(filePath.toString());
-            } else {
-                // If no new file is provided, retain the existing image path
-                existingPhone.setImage(updatedPhone.getImage());
+                // Update the Phone entity with the new filename (not the full path)
+                existingPhone.setImage(newFileName);
             }
 
             return phoneRepository.save(existingPhone);
@@ -106,6 +112,7 @@ public class PhoneService implements IPhoneService {
             throw new EntityNotFoundException("Phone with id " + phoneId + " not found");
         }
     }
+
 
     @Override
     public Phone retrievePhoneById(long id) {

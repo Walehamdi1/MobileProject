@@ -70,20 +70,28 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody User user) throws Exception {
+    public ResponseEntity<Map<String, Object>> registerUser(@RequestBody User user) throws Exception {
+        Map<String, Object> response = new HashMap<>();
+
         // Check if username already exists
         if (userRepository.findByUsername(user.getUsername()) != null) {
-            Map<String, String> response = new HashMap<>();
+            response.put("status", "error");
             response.put("message", "Username already exists, please choose a different one.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
+
+        // Save the user
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(Role.SUPPLIER);
         user.setValid(false);
         userRepository.save(user);
 
-        return ResponseEntity.ok("User registered successfully");
+        // Return success response
+        response.put("status", "success");
+        response.put("message", "User registered successfully");
+        return ResponseEntity.ok(response);
     }
+
 
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String token) {

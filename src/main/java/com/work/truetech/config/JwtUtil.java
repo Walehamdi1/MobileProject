@@ -1,7 +1,10 @@
 package com.work.truetech.config;
 
+import com.work.truetech.entity.User;
+import com.work.truetech.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +14,7 @@ import jakarta.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -22,6 +26,9 @@ public class JwtUtil {
 
     private Key secretKey;
 
+    @Autowired
+    UserRepository userRepository;
+
     @PostConstruct
     public void init() {
         // Initialize the key with the secret from properties
@@ -29,20 +36,46 @@ public class JwtUtil {
     }
 
     public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = Map.of(
-                "roles", userDetails.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .collect(Collectors.toList())
-        );
+        // Fetch the user based on the username from UserDetails
+        User user = userRepository.findByUsername(userDetails.getUsername());
+
+        if (user == null) {
+            throw new RuntimeException("User not found for username: " + userDetails.getUsername());
+        }
+
+        Map<String, Object> claims = new HashMap<>();
+
+        // Adding roles to claims
+        if (userDetails.getAuthorities() != null) {
+            claims.put("roles", userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList()));
+        }
+
+        // Adding email and phone to claims
+        if (user.getEmail() != null) {
+            claims.put("email", user.getEmail());
+        }
+
+        if (user.getPhone() != 0) { // Adjust this check based on how phone is stored (e.g., use a default value)
+            claims.put("phone", user.getPhone());
+        }
+
+        /*System.out.println("User Email: " + user.getEmail());
+        System.out.println("User Phone: " + user.getPhone());
+        System.out.println("Claims: " + claims);*/
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
-                .signWith(secretKey, SignatureAlgorithm.HS256) // Correct method for signing
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
+
+
+
 
     public Claims extractClaims(String token) {
         try {
@@ -68,6 +101,16 @@ public class JwtUtil {
             throw e; // or return a specific error message
         }
     }
+    public String extractEmail(String token) {
+        Claims claims = extractClaims(token);
+        return (String) claims.get("email");
+    }
+
+    public Integer extractPhone(String token) {
+        Claims claims = extractClaims(token);
+        return (Integer) claims.get("phone");
+    }
+
 
     public Collection<?> extractRoles(String token) {
         Claims claims = extractClaims(token);

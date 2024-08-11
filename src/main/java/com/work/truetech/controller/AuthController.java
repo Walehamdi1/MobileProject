@@ -47,11 +47,12 @@ public class AuthController {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         User user = userRepository.findByUsername(authenticationRequest.getUsername());
 
-        if (!user.isValid()) {
+        if (user == null) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Your account is still not verified.");
+            response.put("message", "User not found");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
+
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword())
@@ -61,13 +62,19 @@ public class AuthController {
             response.put("message", "Incorrect username or password");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
+        if (!user.isValid()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Your account is still not verified.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
 
-
-
-        final String jwt = jwtUtil.generateToken(userDetails);
+        final String jwt = jwtUtil.generateToken(userDetails); // No need to pass the User entity here
 
         return ResponseEntity.ok(new AuthenticationResponse(jwt));
     }
+
+
+
 
     @PostMapping("/signup")
     public ResponseEntity<Map<String, Object>> registerUser(@RequestBody User user) throws Exception {
@@ -92,12 +99,12 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-
+/*
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String token) {
         String username = jwtUtil.extractUsername(token.substring(7));
         final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         final String jwt = jwtUtil.generateToken(userDetails);
         return ResponseEntity.ok(new AuthenticationResponse(jwt));
-    }
+    }*/
 }

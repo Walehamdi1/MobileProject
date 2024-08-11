@@ -86,6 +86,7 @@ public class OptionController {
                                @RequestParam("description") String description,
                                @RequestParam("clientPrice") Long clientPrice,
                                @RequestParam("supplierPrice") Long supplierPrice,
+                               @RequestParam("reparation") Long reparation,
                                @RequestParam("quantity") int quantity,
                                @RequestParam("file") MultipartFile file) {
 
@@ -95,6 +96,7 @@ public class OptionController {
             option.setDescription(description);
             option.setSupplierPrice(supplierPrice);
             option.setClientPrice(clientPrice);
+            option.setReparation(reparation);
             option.setQuantity(quantity);
 
             Option updatedOption = optionService.updateOption(optionId,option, file);

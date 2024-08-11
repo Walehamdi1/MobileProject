@@ -36,32 +36,49 @@ public class ModelService implements IModelService {
     }
 
     @Override
-    public Model createModel(Model model,Long phoneId, MultipartFile file) throws IOException {
+    public Model createModel(Model model, Long phoneId, MultipartFile file) throws IOException {
         String uploadPath = getModelsPath();
         System.out.println("Upload Path: " + uploadPath);
 
-        Optional<Phone> OptPhone = phoneRepository.findById(phoneId);
+        Optional<Phone> optPhone = phoneRepository.findById(phoneId);
+
+        // Save the Model entity first to generate an ID
         Model savedModel = modelRepository.save(model);
+
+        // Ensure the upload directory exists
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
         }
-        if (OptPhone.isPresent()) {
-            Phone phone = OptPhone.get();
 
-            // Save the file to the server
-            String fileName = file.getOriginalFilename();
-            Path filePath = Paths.get(uploadPath, savedModel.getId() + "_" + fileName);
-            Files.write(filePath, file.getBytes());
+        if (optPhone.isPresent()) {
+            Phone phone = optPhone.get();
 
+            // Check if a new file is provided
+            if (file != null && !file.isEmpty()) {
+                // Generate the new filename
+                String originalFileName = file.getOriginalFilename();
+                String newFileName = savedModel.getId() + "_" + originalFileName;
+
+                // Save the new file to the server
+                Path filePath = Paths.get(uploadPath, newFileName);
+                Files.write(filePath, file.getBytes());
+
+                // Update the Model entity with the new filename (not the full path)
+                savedModel.setImage(newFileName);
+            }
+
+            // Associate the Model with the Phone
             savedModel.setPhone(phone);
             phone.getModels().add(savedModel);
-            savedModel.setImage(filePath.toString());
+
+            // Save the updated Model entity
             return modelRepository.save(savedModel);
-        }else {
+        } else {
             throw new RuntimeException("Phone not found with id: " + phoneId);
         }
     }
+
 
     @Override
     public List<Model> retrieveModels() {
@@ -84,15 +101,14 @@ public class ModelService implements IModelService {
         Optional<Model> existingModelOpt = modelRepository.findById(modelId);
 
         if (existingModelOpt.isPresent()) {
-
             Model existingModel = existingModelOpt.get();
             existingModel.setTitle(updatedModel.getTitle());
+
             // Check if a new file is provided
             if (file != null && !file.isEmpty()) {
-
                 // Delete the old file if it exists
                 if (existingModel.getImage() != null) {
-                    File oldFile = new File(existingModel.getImage());
+                    File oldFile = new File(uploadPath, existingModel.getImage());
                     if (oldFile.exists()) {
                         oldFile.delete();
                     }
@@ -104,18 +120,22 @@ public class ModelService implements IModelService {
                     uploadDir.mkdirs();
                 }
 
+                // Generate the new filename
+                String originalFileName = file.getOriginalFilename();
+                String newFileName = modelId + "_" + originalFileName;
+
                 // Save the new file to the server
-                String fileName = file.getOriginalFilename();
-                Path filePath = Paths.get(uploadPath, existingModel.getId() + "_" + fileName);
+                Path filePath = Paths.get(uploadPath, newFileName);
                 Files.write(filePath, file.getBytes());
 
-                // Update the Phone entity with the new file path
-                existingModel.setImage(filePath.toString());
+                // Update the Model entity with the new filename (not the full path)
+                existingModel.setImage(newFileName);
             } else {
-                // If no new file is provided, retain the existing image path
+                // If no new file is provided, retain the existing image filename
                 existingModel.setImage(updatedModel.getImage());
             }
 
+            // Save and return the updated model
             return modelRepository.save(existingModel);
         } else {
             throw new EntityNotFoundException("Model with id " + modelId + " not found");

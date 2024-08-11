@@ -9,18 +9,21 @@ import java.util.Collection;
 public class CustomUserDetails implements UserDetails {
     private String username;
     private String password;
+    @Getter
+    private Long id;
     private Collection<? extends GrantedAuthority> authorities;
     @Getter
     private String email;
     @Getter
     private int phone;
 
-    public CustomUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities, String email, int phone) {
+    public CustomUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities, String email, int phone,Long id) {
         this.username = username;
         this.password = password;
         this.authorities = authorities;
         this.email = email;
         this.phone = phone;
+        this.id = id;
     }
 
     @Override

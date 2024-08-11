@@ -1,8 +1,12 @@
 package com.work.truetech.services;
 
+import com.work.truetech.entity.User;
+import com.work.truetech.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +33,9 @@ public class PhoneService implements IPhoneService {
     @Value("${upload.path}")
     private String upload;
 
+    @Autowired
+    UserRepository userRepository;
+
     public String getPhonesPath() {
         return upload + "/phones";
     }
@@ -36,7 +43,16 @@ public class PhoneService implements IPhoneService {
     @Override
     public Phone createPhone(Phone phone, MultipartFile file) throws IOException {
         String uploadPath = getPhonesPath();
+        // Get the current authenticated user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
+        // Find the User by ID from the CustomUserDetails
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userDetails.getId()));
+
+        // Associate the User with the Phone
+        phone.setUser(user);
         // Save the Phone entity first to generate an ID
         Phone savedPhone = phoneRepository.save(phone);
 

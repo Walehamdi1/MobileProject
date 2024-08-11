@@ -31,11 +31,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
         return new CustomUserDetails(
+
                 user.getUsername(),
                 user.getPassword(),
                 getAuthorities(user),
                 user.getEmail(),
-                user.getPhone()
+                user.getPhone(),
+                user.getId()
         );
     }
     private Collection<? extends GrantedAuthority> getAuthorities(User user) {

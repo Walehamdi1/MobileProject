@@ -50,7 +50,7 @@ public class AuthController {
 
         if (user == null) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "User not found");
+            response.put("message", "Utilisateur non trouvé");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
@@ -60,12 +60,12 @@ public class AuthController {
             );
         } catch (BadCredentialsException e) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Incorrect username or password");
+            response.put("message", "Nom d'utilisateur ou mot de passe incorrect !");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
         if (!user.isValid()) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Your account is still not verified.");
+            response.put("message", "Votre compte n'est toujours pas vérifié.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
@@ -83,8 +83,8 @@ public class AuthController {
 
         // Check if username already exists
         if (userRepository.findByUsername(user.getUsername()) != null) {
-            response.put("status", "error");
-            response.put("message", "Username already exists, please choose a different one.");
+            response.put("status", "erreur");
+            response.put("message", "Le nom d'utilisateur existe déjà, veuillez en choisir un autre.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
@@ -95,8 +95,8 @@ public class AuthController {
         userRepository.save(user);
 
         // Return success response
-        response.put("status", "success");
-        response.put("message", "User registered successfully");
+        response.put("status", "succès");
+        response.put("message", "Utilisateur enregistré avec succès!");
         return ResponseEntity.ok(response);
     }
 

@@ -40,7 +40,7 @@ public class OptionController {
                                                @PathVariable("modelId") Long modelId) {
         if (optionRepository.findByTitle(title)!= null) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Option name already exists, please choose a different one.");
+            response.put("message", "Le nom de l'option existe déjà, veuillez en choisir un autre.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         try {
@@ -89,6 +89,11 @@ public class OptionController {
                                @RequestParam("reparation") Long reparation,
                                @RequestParam("quantity") int quantity,
                                @RequestParam("file") MultipartFile file) {
+        if (optionRepository.findByTitle(title)!= null) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Le nom de l'option existe déjà, veuillez en choisir un autre.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
 
         try {
             Option option = new Option();

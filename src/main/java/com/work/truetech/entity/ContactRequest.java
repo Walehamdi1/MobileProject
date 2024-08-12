@@ -17,4 +17,7 @@ public class ContactRequest implements Serializable {
 
     private String message;
     private String email;
+    private String name;
+    private int phone;
+    private String address;
 }

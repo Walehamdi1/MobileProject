@@ -38,7 +38,7 @@ public class ModelController {
             // Check if the model with the same name already exists
             if (modelRepository.findByTitle(title)!= null) {
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "Model name already exists, please choose a different one.");
+                response.put("message", "Le nom du modèle existe déjà, veuillez en choisir un autre.");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
             Model model = new Model();
@@ -75,6 +75,12 @@ public class ModelController {
     @ResponseBody
     public ResponseEntity<?> updateModel(@PathVariable("id") Long modelId, @RequestParam("title") String title,
                              @RequestParam("file") MultipartFile file) {
+        // Check if the model with the same name already exists
+        if (modelRepository.findByTitle(title)!= null) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Le nom du modèle existe déjà, veuillez en choisir un autre.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
         try {
             Model model = new Model();
             model.setTitle(title);

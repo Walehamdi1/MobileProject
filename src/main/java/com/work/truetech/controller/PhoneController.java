@@ -34,7 +34,7 @@ public class PhoneController {
         try {
             if (phoneRepository.findByTitle(title)!= null) {
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "Option name already exists, please choose a different one.");
+                response.put("message", "Le nom de l'option existe déjà, veuillez en choisir un autre.");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
             Phone phone = new Phone();
@@ -63,7 +63,13 @@ public class PhoneController {
     @ResponseBody
     public ResponseEntity<?> updatePhone(@PathVariable("id") Long phoneId, @RequestParam("title") String title,
                              @RequestParam("file") MultipartFile file) {
+        if (phoneRepository.findByTitle(title)!= null) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Le nom de l'option existe déjà, veuillez en choisir un autre.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
         try {
+
             Phone phone = new Phone();
             phone.setTitle(title);
             Phone updatedPhone = iPhoneService.updatePhone(phoneId,phone, file);
@@ -71,6 +77,7 @@ public class PhoneController {
         } catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
 
     }
 

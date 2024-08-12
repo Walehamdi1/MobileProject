@@ -75,7 +75,7 @@ public class ModelService implements IModelService {
             // Save the updated Model entity
             return modelRepository.save(savedModel);
         } else {
-            throw new RuntimeException("Phone not found with id: " + phoneId);
+            throw new RuntimeException("Phone non trouvé avec id: " + phoneId);
         }
     }
 
@@ -138,7 +138,7 @@ public class ModelService implements IModelService {
             // Save and return the updated model
             return modelRepository.save(existingModel);
         } else {
-            throw new EntityNotFoundException("Model with id " + modelId + " not found");
+            throw new EntityNotFoundException("Model avec id " + modelId + " non trouvé");
         }
     }
 

@@ -49,7 +49,7 @@ public class PhoneService implements IPhoneService {
 
         // Find the User by ID from the CustomUserDetails
         User user = userRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userDetails.getId()));
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé avec l'ID: " + userDetails.getId()));
 
         // Associate the User with the Phone
         phone.setUser(user);
@@ -125,7 +125,7 @@ public class PhoneService implements IPhoneService {
 
             return phoneRepository.save(existingPhone);
         } else {
-            throw new EntityNotFoundException("Phone with id " + phoneId + " not found");
+            throw new EntityNotFoundException("Phone avec id " + phoneId + " non trouvé");
         }
     }
 

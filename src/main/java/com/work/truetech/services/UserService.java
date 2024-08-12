@@ -38,7 +38,7 @@ public class UserService implements IUserService{
     @Override
     public User toggleUserValidity(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
         // Toggle the valid field
         user.setValid(!user.isValid());

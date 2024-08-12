@@ -90,7 +90,7 @@ public class OptionService implements IOptionService {
     @Override
     public Option getOptionById(Long optionId) {
         Optional<Option> optionalOption = optionRepository.findById(optionId);
-        return optionalOption.orElseThrow(() -> new RuntimeException("Option not found with id: " + optionId));
+        return optionalOption.orElseThrow(() -> new RuntimeException("Option non trouvé avec id: " + optionId));
     }
 
     @Override
@@ -142,7 +142,7 @@ public class OptionService implements IOptionService {
 
             return optionRepository.save(existingOption);
         } else {
-            throw new RuntimeException("Option not found with id: " + optionId);
+            throw new RuntimeException("Option non trouvé avec id: " + optionId);
         }
     }
 

@@ -1,0 +1,37 @@
+package com.work.truetech.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Facture {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String fullName;
+    private String phone;
+    private String address;
+    private boolean reparationStatus;
+    private boolean deliveryStatus;
+    private double deliveryPrice;
+    private double total;
+
+    @Column(unique = true, nullable = false)
+    private String code; // New attribute for the unique code
+
+
+    @OneToMany(mappedBy = "facture", cascade = CascadeType.ALL)
+    private List<FactureOption> factureOptions = new ArrayList<>();
+}

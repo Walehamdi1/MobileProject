@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -29,4 +31,7 @@ public class Option implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnore
     private Model model;
+
+    @OneToMany(mappedBy = "option", cascade = CascadeType.ALL)
+    private List<FactureOption> factureOptions = new ArrayList<>();
 }

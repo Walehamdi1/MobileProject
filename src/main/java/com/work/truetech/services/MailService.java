@@ -30,8 +30,8 @@ public class MailService {
         context.setVariable("address", contactRequest.getAddress());
 
         String htmlContent = templateEngine.process("emailTemplate", context);
-        helper.setTo(contactRequest.getEmail());
-        helper.setSubject("Welcome to Our Service");
+        helper.setTo("helmi.br1999@gmail.com");
+        helper.setSubject("TrueTech Mail");
         helper.setText(htmlContent, true);
 
         mailSender.send(mimeMessage);

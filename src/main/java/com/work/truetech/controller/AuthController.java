@@ -100,12 +100,12 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-/*
+
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String token) {
         String username = jwtUtil.extractUsername(token.substring(7));
         final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         final String jwt = jwtUtil.generateToken(userDetails);
         return ResponseEntity.ok(new AuthenticationResponse(jwt));
-    }*/
+    }
 }

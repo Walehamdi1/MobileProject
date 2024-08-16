@@ -1,18 +1,26 @@
 package com.work.truetech.controller;
 
+import com.work.truetech.entity.Facture;
+import com.work.truetech.services.IFactureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.work.truetech.entity.User;
 import com.work.truetech.services.IUserService;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/admin")
 public class UserController {
     @Autowired
     IUserService userService;
+    @Autowired
+    IFactureService factureService;
 
     @PostMapping("/add-user")
     @ResponseBody
@@ -38,21 +46,13 @@ public class UserController {
         return  userService.retrieveUserById(userId);
     }
 
-    /*@PutMapping("/update-model/{id}")
+    @PutMapping("/update-user/{id}")
     @ResponseBody
-    public ResponseEntity<Model> updateModel(@PathVariable("id") Long modelId, @RequestParam("name") String name,
-                                             @RequestParam("file") MultipartFile file) {
-        try {
-            Model model = new Model();
-            model.setName(name);
-            Model updatedModel = modelService.updateModel(modelId,model, file);
-            return new ResponseEntity<>(updatedModel, HttpStatus.CREATED);
-        } catch (IOException e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
+    public ResponseEntity<?> updateUser(@PathVariable("id") Long userId, @RequestBody User updatedUser) {
+        return userService.updateUser(userId, updatedUser);
     }
-*/
+
+
     @DeleteMapping("/delete-user/{userId}")
     @ResponseBody
     public void deleteUser(@PathVariable("userId") Long userId) {
@@ -63,10 +63,21 @@ public class UserController {
     public ResponseEntity<?> toggleUserValidity(@PathVariable Long id) {
         try {
             User updatedUser = userService.toggleUserValidity(id);
-            String status = updatedUser.isValid() ? "valid" : "invalid";
-            return ResponseEntity.ok("User is now " + status);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "User is now " + (updatedUser.isValid() ? "valid" : "invalid"));
+            response.put("userId", String.valueOf(updatedUser.getId()));
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
+    @GetMapping("/find-all-factures")
+    @ResponseBody
+    public List<Facture> getFactures() {
+        List<Facture> listFacture = factureService.retrieveAllFacture();
+        return listFacture;
+    }
+
 }

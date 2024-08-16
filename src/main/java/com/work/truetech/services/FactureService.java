@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -79,5 +80,10 @@ public class FactureService implements IFactureService{
 
         // Save the facture again with its options and the calculated total
         return factureRepository.save(facture);
+    }
+
+    @Override
+    public List<Facture> retrieveAllFacture() {
+        return factureRepository.findAll();
     }
 }

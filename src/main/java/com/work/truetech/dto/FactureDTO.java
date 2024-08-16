@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class FactureDTO {
     private String fullName;
-    private String phone;
+    private int phone;
     private String address;
     private boolean reparationStatus;
     private boolean deliveryStatus;

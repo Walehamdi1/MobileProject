@@ -24,6 +24,7 @@ public class Phone implements Serializable {
     private String image;
 
     @OneToMany(cascade = CascadeType.ALL,mappedBy="phone")
+    @JsonIgnore
     private Set<Model> models = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER)

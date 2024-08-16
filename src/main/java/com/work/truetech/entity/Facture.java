@@ -1,5 +1,6 @@
 package com.work.truetech.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,5 +34,6 @@ public class Facture {
 
 
     @OneToMany(mappedBy = "facture", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<FactureOption> factureOptions = new ArrayList<>();
 }

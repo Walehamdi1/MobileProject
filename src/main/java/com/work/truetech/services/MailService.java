@@ -27,7 +27,6 @@ public class MailService {
         context.setVariable("message", contactRequest.getMessage());
         context.setVariable("phone", contactRequest.getPhone());
         context.setVariable("email", contactRequest.getEmail());
-        context.setVariable("address", contactRequest.getAddress());
 
         String htmlContent = templateEngine.process("emailTemplate", context);
         helper.setTo("helmi.br1999@gmail.com");

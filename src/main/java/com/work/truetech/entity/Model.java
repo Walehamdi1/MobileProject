@@ -27,5 +27,6 @@ public class Model implements Serializable {
     private Phone  phone;
 
     @OneToMany(cascade = CascadeType.ALL,mappedBy="model")
+    @JsonIgnore
     private Set<Option> options = new HashSet<>();
 }

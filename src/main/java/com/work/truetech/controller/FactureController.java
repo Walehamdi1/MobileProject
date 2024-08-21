@@ -1,7 +1,6 @@
 package com.work.truetech.controller;
 
 import com.work.truetech.dto.FactureDTO;
-import com.work.truetech.entity.Facture;
 import com.work.truetech.services.FactureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,5 +30,11 @@ public class FactureController {
             response.put("message", "Failed to create facture: " + e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @DeleteMapping("/{id}/cancel")
+    public ResponseEntity<Void> cancelFacture(@PathVariable Long id) {
+        factureService.cancelFacture(id);
+        return ResponseEntity.noContent().build();
     }
 }

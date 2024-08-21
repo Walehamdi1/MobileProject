@@ -60,6 +60,16 @@ public class FactureService implements IFactureService{
             Option option = optionRepository.findById(optionDTO.getOptionId())
                     .orElseThrow(() -> new RuntimeException("Option not found"));
 
+            // Reduce the option's quantity by the quantity specified in the DTO
+            int remainingQuantity = option.getQuantity() - optionDTO.getQuantity();
+            if (remainingQuantity < 0) {
+                throw new RuntimeException("Not enough quantity available for option: " + option.getTitle());
+            }
+            option.setQuantity(remainingQuantity);
+
+            // Save the updated option back to the repository
+            optionRepository.save(option);
+
             FactureOption factureOption = new FactureOption();
             factureOption.setFacture(facture);
             factureOption.setOption(option);
@@ -85,5 +95,28 @@ public class FactureService implements IFactureService{
     @Override
     public List<Facture> retrieveAllFacture() {
         return factureRepository.findAll();
+    }
+
+    @Override
+    public void cancelFacture(Long factureId) {
+        // Retrieve the facture
+        Facture facture = factureRepository.findById(factureId)
+                .orElseThrow(() -> new RuntimeException("Facture not found"));
+
+        // Restore the quantity of each option associated with the facture
+        for (FactureOption factureOption : facture.getFactureOptions()) {
+            Option option = factureOption.getOption();
+            int restoredQuantity = option.getQuantity() + factureOption.getQuantity();
+            option.setQuantity(restoredQuantity);
+
+            // Save the updated option back to the repository
+            optionRepository.save(option);
+        }
+
+        // Delete all facture options associated with the facture
+        factureOptionRepository.deleteAll(facture.getFactureOptions());
+
+        // Delete the facture itself
+        factureRepository.delete(facture);
     }
 }

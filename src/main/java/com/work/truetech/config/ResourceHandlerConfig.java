@@ -14,5 +14,7 @@ public class ResourceHandlerConfig implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/fils/models/");
         registry.addResourceHandler("/api/options/**")
                 .addResourceLocations("classpath:/fils/options/");
+        registry.addResourceHandler("/api/video/**")
+                .addResourceLocations("classpath:/fils/video/");
     }
 }

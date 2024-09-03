@@ -70,8 +70,14 @@ public class AuthController {
         }
 
         final String jwt = jwtUtil.generateToken((CustomUserDetails) userDetails); // No need to pass the User entity here
+        final String refreshToken = jwtUtil.generateRefreshToken((CustomUserDetails) userDetails); // Generate refresh token
 
-        return ResponseEntity.ok(new AuthenticationResponse(jwt));
+        // Return both tokens in the response
+        Map<String, String> response = new HashMap<>();
+        response.put("token", jwt);
+        response.put("refreshToken", refreshToken);
+
+        return ResponseEntity.ok(response);
     }
 
 

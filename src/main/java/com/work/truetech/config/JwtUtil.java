@@ -30,6 +30,9 @@ public class JwtUtil {
     @Autowired
     UserRepository userRepository;
 
+    @Value("${jwt.refresh.expiration}")
+    private long refreshTokenExpiration;
+
     @PostConstruct
     public void init() {
         // Initialize the key with the secret from properties
@@ -121,6 +124,44 @@ public class JwtUtil {
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+    public String generateRefreshToken(UserDetails userDetails) {
+        // Fetch the user based on the username from UserDetails
+        User user = userRepository.findByUsername(userDetails.getUsername());
+
+        if (user == null) {
+            throw new RuntimeException("User not found for username: " + userDetails.getUsername());
+        }
+
+        Map<String, Object> claims = new HashMap<>();
+
+        // Adding roles to claims
+        if (userDetails.getAuthorities() != null) {
+            claims.put("roles", userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList()));
+        }
+
+        // Adding email and phone to claims
+        if (user.getEmail() != null) {
+            claims.put("email", user.getEmail());
+        }
+
+        if (user.getPhone() != 0) { // Adjust this check based on how phone is stored (e.g., use a default value)
+            claims.put("phone", user.getPhone());
+        }
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+    public boolean validateRefreshToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }

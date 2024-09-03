@@ -29,6 +29,9 @@ public class Facture {
     private double deliveryPrice;
     private double total;
 
+    @Column(name = "user_id")
+    private Long userId;
+
     @Column(unique = true, nullable = false)
     private String code; // New attribute for the unique code
 

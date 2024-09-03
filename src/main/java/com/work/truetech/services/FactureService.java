@@ -2,13 +2,15 @@ package com.work.truetech.services;
 
 import com.work.truetech.dto.FactureDTO;
 import com.work.truetech.dto.FactureOptionDTO;
-import com.work.truetech.entity.Facture;
-import com.work.truetech.entity.FactureOption;
-import com.work.truetech.entity.Option;
+import com.work.truetech.entity.*;
 import com.work.truetech.repository.FactureOptionRepository;
 import com.work.truetech.repository.FactureRepository;
 import com.work.truetech.repository.OptionRepository;
+import com.work.truetech.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -35,8 +37,23 @@ public class FactureService implements IFactureService{
         }
         return code.toString();
     }
+
+    @Autowired
+    UserRepository userRepository;
     @Override
     public Facture createFacture(FactureDTO factureDTO) {
+        // Get the current authenticated user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long currentUserId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            User user = userRepository.findByUsername(userDetails.getUsername());
+            if (user.getRole() == Role.SUPPLIER) {
+                currentUserId = user.getId();
+            }
+        }
+
+
         // Create a new Facture entity
         Facture facture = new Facture();
         facture.setFullName(factureDTO.getFullName());
@@ -45,6 +62,7 @@ public class FactureService implements IFactureService{
         facture.setReparationStatus(factureDTO.isReparationStatus());
         facture.setDeliveryStatus(factureDTO.isDeliveryStatus());
         facture.setDeliveryPrice(factureDTO.getLivraisonPrice());
+        facture.setUserId(currentUserId);
 
         double totalCost = factureDTO.getLivraisonPrice(); // Start with the delivery price
 

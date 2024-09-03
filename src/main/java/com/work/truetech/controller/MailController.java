@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.work.truetech.entity.ContactRequest;
 import com.work.truetech.services.MailService;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +31,9 @@ public class MailController {
             response.put("status", "succès");
             response.put("message", "Email envoyé avec succès !");
             return ResponseEntity.ok(response);
-        } catch (MessagingException e) {
+        }  catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }  catch (MessagingException e) {
             e.printStackTrace();
             response.put("status", "erreur");
             response.put("message", "Échec de l'envoi de l'e-mail.");

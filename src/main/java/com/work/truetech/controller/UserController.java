@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.work.truetech.entity.User;
 import com.work.truetech.services.IUserService;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,16 +27,24 @@ public class UserController {
     @ResponseBody
     public ResponseEntity<User> createUser(@RequestBody User user) {
 
-        User createdUser = userService.createUser(user);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+        try {
+            User createdUser = userService.createUser(user);
+            return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+        } catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }
 
     }
 
     @GetMapping("/find-all-users")
     @ResponseBody
     public List<User> getUsers() {
-        List<User> listUser = userService.retrieveAllUsers();
-        return listUser;
+        try {
+            List<User> listUser = userService.retrieveAllUsers();
+            return listUser;
+        } catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }
     }
 
 
@@ -43,20 +52,34 @@ public class UserController {
     @GetMapping("/find-user/{userId}")
     @ResponseBody
     public User getUserById(@PathVariable("userId") long userId) {
-        return  userService.retrieveUserById(userId);
+        try {
+
+            return  userService.retrieveUserById(userId);
+        } catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }
     }
 
     @PutMapping("/update-user/{id}")
     @ResponseBody
     public ResponseEntity<?> updateUser(@PathVariable("id") Long userId, @RequestBody User updatedUser) {
-        return userService.updateUser(userId, updatedUser);
+        try {
+            return userService.updateUser(userId, updatedUser);
+        } catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }
     }
 
 
     @DeleteMapping("/delete-user/{userId}")
     @ResponseBody
     public void deleteUser(@PathVariable("userId") Long userId) {
-        userService.deleteUser(userId);
+
+        try {
+            userService.deleteUser(userId);
+        } catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }
     }
 
     @PutMapping("/{id}/validity")
@@ -67,7 +90,9 @@ public class UserController {
             response.put("message", "User is now " + (updatedUser.isValid() ? "valid" : "invalid"));
             response.put("userId", String.valueOf(updatedUser.getId()));
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        }  catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }  catch (Exception e) {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
@@ -76,8 +101,12 @@ public class UserController {
     @GetMapping("/find-all-factures")
     @ResponseBody
     public List<Facture> getFactures() {
-        List<Facture> listFacture = factureService.retrieveAllFacture();
-        return listFacture;
+        try {
+            List<Facture> listFacture = factureService.retrieveAllFacture();
+            return listFacture;
+        } catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }
     }
 
 }

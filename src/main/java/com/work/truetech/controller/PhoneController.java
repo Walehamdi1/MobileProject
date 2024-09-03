@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.multipart.MultipartFile;
 import com.work.truetech.entity.Phone;
 import com.work.truetech.repository.PhoneRepository;
@@ -41,7 +42,9 @@ public class PhoneController {
             phone.setTitle(title);
             Phone createdPhone = iPhoneService.createPhone(phone, file);
             return new ResponseEntity<>(createdPhone, HttpStatus.CREATED);
-        } catch (IOException e) {
+        }  catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }  catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -49,14 +52,22 @@ public class PhoneController {
     @GetMapping("/api/phone/find-all-phones")
     @ResponseBody
     public List<?> getPhone() {
-        List<Phone> listPhone = iPhoneService.retrievePhones();
-        return listPhone;
+        try {
+            List<Phone> listPhone = iPhoneService.retrievePhones();
+            return listPhone;
+        } catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }
     }
 
     @GetMapping("/api/phone/find-phone/{phoneId}")
     @ResponseBody
     public Phone getPhoneById(@PathVariable("phoneId") long phoneId) {
-        return  iPhoneService.retrievePhoneById(phoneId);
+        try {
+            return iPhoneService.retrievePhoneById(phoneId);
+        } catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }
     }
 
     @PutMapping("/admin/phone/update-phone/{id}")
@@ -74,7 +85,9 @@ public class PhoneController {
             phone.setTitle(title);
             Phone updatedPhone = iPhoneService.updatePhone(phoneId,phone, file);
             return new ResponseEntity<>(updatedPhone, HttpStatus.CREATED);
-        } catch (IOException e) {
+        }  catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }  catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -84,7 +97,11 @@ public class PhoneController {
     @DeleteMapping("/admin/phone/delete-phone/{id}")
     @ResponseBody
     public void deletePhone(@PathVariable("id") Long phoneId) {
-        iPhoneService.deletePhone(phoneId);
+        try {
+            iPhoneService.deletePhone(phoneId);
+        } catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }
     }
 
 }

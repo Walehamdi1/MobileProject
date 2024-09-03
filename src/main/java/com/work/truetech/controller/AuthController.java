@@ -19,6 +19,7 @@ import com.work.truetech.entity.Role;
 import com.work.truetech.entity.User;
 
 import com.work.truetech.repository.UserRepository;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +59,9 @@ public class AuthController {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword())
             );
-        } catch (BadCredentialsException e) {
+        }  catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }  catch (BadCredentialsException e) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Nom d'utilisateur ou mot de passe incorrect !");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
@@ -87,23 +90,28 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> registerUser(@RequestBody User user) throws Exception {
         Map<String, Object> response = new HashMap<>();
 
-        // Check if username already exists
-        if (userRepository.findByUsername(user.getUsername()) != null) {
-            response.put("status", "erreur");
-            response.put("message", "Le nom d'utilisateur existe déjà, veuillez en choisir un autre.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        try {
+
+            // Check if username already exists
+            if (userRepository.findByUsername(user.getUsername()) != null) {
+                response.put("status", "erreur");
+                response.put("message", "Le nom d'utilisateur existe déjà, veuillez en choisir un autre.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            // Save the user
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setRole(Role.SUPPLIER);
+            user.setValid(false);
+            userRepository.save(user);
+
+            // Return success response
+            response.put("status", "succès");
+            response.put("message", "Utilisateur enregistré avec succès!");
+            return ResponseEntity.ok(response);
+        } catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
         }
-
-        // Save the user
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(Role.SUPPLIER);
-        user.setValid(false);
-        userRepository.save(user);
-
-        // Return success response
-        response.put("status", "succès");
-        response.put("message", "Utilisateur enregistré avec succès!");
-        return ResponseEntity.ok(response);
     }
 
 

@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.multipart.MultipartFile;
 import com.work.truetech.entity.Model;
 import com.work.truetech.entity.Option;
@@ -54,7 +55,9 @@ public class OptionController {
 
             Option createdOption = optionService.createOption(option,modelId ,file);
             return new ResponseEntity<>(createdOption, HttpStatus.CREATED);
-        } catch (IOException e) {
+        }  catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }  catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -63,21 +66,33 @@ public class OptionController {
     @GetMapping("/api/option/find-all-options")
     @ResponseBody
     public List<?> getOptions() {
-        List<Option> listOption = optionService.retrieveOptions();
-        return listOption;
+        try {
+            List<Option> listOption = optionService.retrieveOptions();
+            return listOption;
+        } catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }
     }
 
     @GetMapping("/api/option/find-options/{id}")
     @ResponseBody
     public List<?> getOptionByModel(@PathVariable("id") Long modelId ) {
-        List<Option> listOption = optionService.retrieveOptionByModel(modelId);
-        return listOption;
+        try {
+            List<Option> listOption = optionService.retrieveOptionByModel(modelId);
+            return listOption;
+        } catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }
     }
 
     @GetMapping("/api/option/find-option/{optionId}")
     @ResponseBody
     public Option getOptionById(@PathVariable("optionId") long optionId) {
-        return  optionService.getOptionById(optionId);
+        try {
+            return optionService.getOptionById(optionId);
+        } catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }
     }
 
     @PutMapping("/admin/option/update-option/{id}")
@@ -106,7 +121,9 @@ public class OptionController {
 
             Option updatedOption = optionService.updateOption(optionId,option, file);
             return new ResponseEntity<>(updatedOption, HttpStatus.CREATED);
-        } catch (IOException e) {
+        }  catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }  catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -116,6 +133,10 @@ public class OptionController {
     @DeleteMapping("/admin/option/delete-option/{id}")
     @ResponseBody
     public void deleteOption(@PathVariable("id") Long optionid) {
-        optionService.deleteOption(optionid);
+        try {
+            optionService.deleteOption(optionid);
+        } catch (ResourceAccessException ex){
+            throw new ResourceAccessException("Network issue encountered.");
+        }
     }
 }

@@ -130,9 +130,6 @@ public class ModelService implements IModelService {
 
                 // Update the Model entity with the new filename (not the full path)
                 existingModel.setImage(newFileName);
-            } else {
-                // If no new file is provided, retain the existing image filename
-                existingModel.setImage(updatedModel.getImage());
             }
 
             // Save and return the updated model
@@ -144,7 +141,33 @@ public class ModelService implements IModelService {
 
     @Override
     public void deleteModel(Long id) {
-    modelRepository.deleteById(id);
+        // Find the model by ID
+        Optional<Model> optModel = modelRepository.findById(id);
+
+        if (optModel.isPresent()) {
+            Model model = optModel.get();
+
+            // Check if the model has an associated image
+            if (model.getImage() != null) {
+                // Construct the file path
+                String uploadPath = getModelsPath();
+                Path filePath = Paths.get(uploadPath, model.getImage());
+
+                try {
+                    // Delete the file if it exists
+                    Files.deleteIfExists(filePath);
+                } catch (IOException e) {
+                    // Log an error if the file deletion fails
+                    System.err.println("Could not delete file: " + filePath);
+                    e.printStackTrace();
+                }
+            }
+
+            // Delete the model from the database
+            modelRepository.delete(model);
+        } else {
+            throw new RuntimeException("Model not found with id: " + id);
+        }
     }
 
 

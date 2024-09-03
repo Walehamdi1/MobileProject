@@ -88,7 +88,7 @@ public class OptionController {
                                @RequestParam("supplierPrice") Long supplierPrice,
                                @RequestParam("reparation") Long reparation,
                                @RequestParam("quantity") int quantity,
-                               @RequestParam("file") MultipartFile file) {
+                               @RequestParam(value = "file", required = false) MultipartFile file) {
         if (optionRepository.findByTitle(title)!= null) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Le nom de l'option existe déjà, veuillez en choisir un autre.");

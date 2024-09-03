@@ -135,9 +135,6 @@ public class OptionService implements IOptionService {
 
                 // Update the Option entity with the new filename (not the full path)
                 existingOption.setImage(newFileName);
-            } else {
-                // If no new file is provided, retain the existing image filename
-                existingOption.setImage(updatedOption.getImage());
             }
 
             return optionRepository.save(existingOption);
@@ -148,7 +145,29 @@ public class OptionService implements IOptionService {
 
 
     @Override
-    public void deleteOption(Long id) {
-        optionRepository.deleteById(id);
+    public void deleteOption(Long optionId) {
+        String uploadPath = getOptionsPath();
+        Optional<Option> optionalOption = optionRepository.findById(optionId);
+
+        if (optionalOption.isPresent()) {
+            Option existingOption = optionalOption.get();
+
+            // Delete the associated image file if it exists
+            if (existingOption.getImage() != null) {
+                File imageFile = new File(uploadPath, existingOption.getImage());
+                if (imageFile.exists()) {
+                    if (!imageFile.delete()) {
+                        // Log or handle if the file deletion fails
+                        System.err.println("Failed to delete the image file: " + imageFile.getPath());
+                    }
+                }
+            }
+
+            // Delete the Option entity from the repository
+            optionRepository.delete(existingOption);
+        } else {
+            throw new RuntimeException("Option non trouvé avec id: " + optionId);
+        }
     }
+
 }

@@ -137,7 +137,28 @@ public class PhoneService implements IPhoneService {
 
     @Override
     public void deletePhone(long id) {
-        phoneRepository.deleteById(id);
+        String uploadPath = getPhonesPath();
+        Optional<Phone> optionalPhone = phoneRepository.findById(id);
+
+        if (optionalPhone.isPresent()) {
+            Phone existingPhone = optionalPhone.get();
+
+            // Delete the associated image file if it exists
+            if (existingPhone.getImage() != null) {
+                File imageFile = new File(uploadPath, existingPhone.getImage());
+                if (imageFile.exists()) {
+                    if (!imageFile.delete()) {
+                        // Log or handle if the file deletion fails
+                        System.err.println("Failed to delete the image file: " + imageFile.getPath());
+                    }
+                }
+            }
+
+            // Delete the Model entity from the repository
+            phoneRepository.delete(existingPhone);
+        } else {
+            throw new RuntimeException("Model non trouvé avec id: " + id);
+        }
     }
 
 

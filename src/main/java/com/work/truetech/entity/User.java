@@ -1,5 +1,6 @@
     package com.work.truetech.entity;
 
+    import com.fasterxml.jackson.annotation.JsonIgnore;
     import jakarta.persistence.*;
     import lombok.AllArgsConstructor;
     import lombok.Getter;
@@ -26,6 +27,7 @@
         private int phone;
         private boolean valid;
 
+        @JsonIgnore
         @OneToMany(cascade = CascadeType.ALL,mappedBy="user")
         private Set<Phone> phones = new HashSet<>();
 

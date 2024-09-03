@@ -49,7 +49,7 @@ public class UserService implements IUserService{
 
     @Override
     public List<User> retrieveAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findUsersByRole(Role.USER,Role.SUPPLIER);
     }
 
     @Override

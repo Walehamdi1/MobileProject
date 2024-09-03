@@ -74,7 +74,7 @@ public class ModelController {
     @PutMapping("/admin/model/update-model/{id}")
     @ResponseBody
     public ResponseEntity<?> updateModel(@PathVariable("id") Long modelId, @RequestParam("title") String title,
-                             @RequestParam("file") MultipartFile file) {
+                             @RequestParam(value = "file", required = false) MultipartFile file) {
         // Check if the model with the same name already exists
         if (modelRepository.findByTitle(title)!= null) {
             Map<String, String> response = new HashMap<>();

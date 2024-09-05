@@ -1,6 +1,9 @@
 package com.work.truetech.controller;
 
 import com.work.truetech.dto.FactureDTO;
+import com.work.truetech.dto.OptionDTO;
+import com.work.truetech.entity.Facture;
+import com.work.truetech.repository.FactureRepository;
 import com.work.truetech.services.FactureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import org.springframework.data.domain.Page;
 
 @RestController
 @RequestMapping("/api/factures")
@@ -17,6 +22,9 @@ public class FactureController {
 
     @Autowired
     private FactureService factureService;
+
+    @Autowired
+    private FactureRepository factureRepository;
 
     @PostMapping("/create")
     public ResponseEntity<Map<String,String>> createFacture(@RequestBody FactureDTO factureDTO) {
@@ -44,5 +52,28 @@ public class FactureController {
             catch (ResourceAccessException ex){
             throw new ResourceAccessException("Network issue encountered.");
         }
+    }
+
+    @GetMapping("/find")
+    public List<Facture> retrieveAll(){
+        return  factureRepository.findAll();
+    }
+
+    @GetMapping("/findpag")
+    public Page<Facture> getInvoices(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return factureService.getInvoices(page, size);
+    }
+
+    @GetMapping("/total-count")
+    public long getTotalInvoiceCount() {
+        return factureRepository.count();
+    }
+
+    @GetMapping("/item/{id}")
+    public List<OptionDTO> getFactureDetails(@PathVariable Long id) {
+        return factureService.getFactureById(id);
     }
 }

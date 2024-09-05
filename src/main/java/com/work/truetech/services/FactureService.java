@@ -2,18 +2,24 @@ package com.work.truetech.services;
 
 import com.work.truetech.dto.FactureDTO;
 import com.work.truetech.dto.FactureOptionDTO;
+import com.work.truetech.dto.OptionDTO;
 import com.work.truetech.entity.*;
 import com.work.truetech.repository.FactureOptionRepository;
 import com.work.truetech.repository.FactureRepository;
 import com.work.truetech.repository.OptionRepository;
 import com.work.truetech.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -137,4 +143,29 @@ public class FactureService implements IFactureService{
         // Delete the facture itself
         factureRepository.delete(facture);
     }
+
+    public Page<Facture> getInvoices(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+
+        return factureRepository.findAll(pageable);
+    }
+    public List<OptionDTO> getFactureById(Long id) {
+        Facture facture = factureRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Facture not found with id: " + id));
+
+        List<OptionDTO> dtoList = new ArrayList<>();
+        for (FactureOption factureOption : facture.getFactureOptions()) {
+            Long optionId = factureOption.getOption().getId(); // Assuming FactureOption has a reference to Option directly.
+            Option option = optionRepository.findById(optionId)
+                    .orElseThrow(() -> new RuntimeException("Option not found with id: " + optionId));
+
+            OptionDTO opt = new OptionDTO();
+            opt.setQuantity(factureOption.getQuantity());
+            opt.setTitle(option.getTitle());
+            dtoList.add(opt);
+        }
+        return dtoList;
+    }
+
 }

@@ -2,7 +2,6 @@ package com.work.truetech.config;
 
 import com.work.truetech.entity.User;
 import com.work.truetech.repository.UserRepository;
-import com.work.truetech.services.CustomUserDetails;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +34,10 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
-        // Initialize the key with the secret from properties
         secretKey = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
     public String generateToken(UserDetails userDetails) {
-        // Fetch the user based on the username from UserDetails
         User user = userRepository.findByUsername(userDetails.getUsername());
 
         if (user == null) {
@@ -49,22 +46,15 @@ public class JwtUtil {
 
         Map<String, Object> claims = new HashMap<>();
 
-        // Adding roles to claims
         if (userDetails.getAuthorities() != null) {
             claims.put("roles", userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList()));
         }
 
-        // Adding email and phone to claims
         if (user.getEmail() != null) {
             claims.put("email", user.getEmail());
         }
-
-        if (user.getPhone() != 0) { // Adjust this check based on how phone is stored (e.g., use a default value)
-            claims.put("phone", user.getPhone());
-        }
-
 
 
         return Jwts.builder()
@@ -76,33 +66,24 @@ public class JwtUtil {
                 .compact();
     }
 
-
-
-
     public Claims extractClaims(String token) {
         try {
             return Jwts.parserBuilder()
-                    .setSigningKey(secretKey)  // Use your key here
+                    .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            // Handle expired token
             throw new JwtTokenExpiredException("JWT token has expired", e);
         } catch (JwtException e) {
-            // Handle other token-related exceptions
             throw new JwtTokenInvalidException("JWT token is invalid", e);
         }
     }
 
     public String extractUsername(String token) {
-        try {
-            return extractClaims(token).getSubject();
-        } catch (JwtTokenInvalidException e) {
-            // Handle or log the exception as needed
-            throw e; // or return a specific error message
-        }
+        return extractClaims(token).getSubject();
     }
+
     public String extractEmail(String token) {
         Claims claims = extractClaims(token);
         return (String) claims.get("email");
@@ -112,7 +93,6 @@ public class JwtUtil {
         Claims claims = extractClaims(token);
         return (Integer) claims.get("phone");
     }
-
 
     public Collection<?> extractRoles(String token) {
         Claims claims = extractClaims(token);
@@ -127,8 +107,8 @@ public class JwtUtil {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
+
     public String generateRefreshToken(UserDetails userDetails) {
-        // Fetch the user based on the username from UserDetails
         User user = userRepository.findByUsername(userDetails.getUsername());
 
         if (user == null) {
@@ -137,21 +117,17 @@ public class JwtUtil {
 
         Map<String, Object> claims = new HashMap<>();
 
-        // Adding roles to claims
         if (userDetails.getAuthorities() != null) {
             claims.put("roles", userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList()));
         }
 
-        // Adding email and phone to claims
         if (user.getEmail() != null) {
             claims.put("email", user.getEmail());
         }
 
-        if (user.getPhone() != 0) { // Adjust this check based on how phone is stored (e.g., use a default value)
-            claims.put("phone", user.getPhone());
-        }
+
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -161,8 +137,22 @@ public class JwtUtil {
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
-    public boolean validateRefreshToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+
+    public boolean validateRefreshToken(String token) {
+        final String username = extractUsernameFromRefreshToken(token);
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            return false;
+        }
+        return !isTokenExpired(token);
+    }
+
+    public String extractUsernameFromRefreshToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
     }
 }

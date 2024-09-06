@@ -42,7 +42,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                     if (jwtUtil.validateToken(jwtToken, userDetails)) {
-                        // Set authentication context here
                         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities());
                         auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -50,17 +49,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     }
                 }
             } catch (JwtTokenExpiredException e) {
-                // Handle expired token
                 sendJsonResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "JWT token has expired");
-                return; // stop further processing
+                return;
             } catch (JwtTokenInvalidException e) {
-                // Handle invalid token
                 sendJsonResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "JWT token is invalid");
-                return; // stop further processing
+                return;
             } catch (Exception e) {
-                // Handle other exceptions
                 sendJsonResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred");
-                return; // stop further processing
+                return;
             }
         }
 

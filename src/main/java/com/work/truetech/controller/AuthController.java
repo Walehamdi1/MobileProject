@@ -1,5 +1,7 @@
 package com.work.truetech.controller;
 
+import com.work.truetech.config.JwtTokenExpiredException;
+import com.work.truetech.config.JwtTokenInvalidException;
 import com.work.truetech.config.JwtUtil;
 import com.work.truetech.services.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +22,10 @@ import com.work.truetech.entity.User;
 
 import com.work.truetech.repository.UserRepository;
 import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
-
 
 @RestController
 @RequestMapping("/api/auth")
@@ -59,23 +61,23 @@ public class AuthController {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword())
             );
-        }  catch (ResourceAccessException ex){
+        } catch (ResourceAccessException ex) {
             throw new ResourceAccessException("Network issue encountered.");
-        }  catch (BadCredentialsException e) {
+        } catch (BadCredentialsException e) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Nom d'utilisateur ou mot de passe incorrect !");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
+
         if (!user.isValid()) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Votre compte n'est toujours pas vérifié.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
-        final String jwt = jwtUtil.generateToken((CustomUserDetails) userDetails); // No need to pass the User entity here
-        final String refreshToken = jwtUtil.generateRefreshToken((CustomUserDetails) userDetails); // Generate refresh token
+        final String jwt = jwtUtil.generateToken((CustomUserDetails) userDetails);
+        final String refreshToken = jwtUtil.generateRefreshToken((CustomUserDetails) userDetails);
 
-        // Return both tokens in the response
         Map<String, String> response = new HashMap<>();
         response.put("token", jwt);
         response.put("refreshToken", refreshToken);
@@ -83,43 +85,65 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody User user) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username is already taken");
+        }
 
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(Role.USER);
+        user.setValid(true);
 
+        userRepository.save(user);
 
-    @PostMapping("/signup")
-    public ResponseEntity<Map<String, Object>> registerUser(@RequestBody User user) throws Exception {
-        Map<String, Object> response = new HashMap<>();
+        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+
+        // Check if the refresh token is present in the request
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Refresh token is missing");
+        }
 
         try {
-
-            // Check if username already exists
-            if (userRepository.findByUsername(user.getUsername()) != null) {
-                response.put("status", "erreur");
-                response.put("message", "Le nom d'utilisateur existe déjà, veuillez en choisir un autre.");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            // Validate the refresh token
+            if (!jwtUtil.validateRefreshToken(refreshToken)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
             }
 
-            // Save the user
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            user.setRole(Role.SUPPLIER);
-            user.setValid(false);
-            userRepository.save(user);
+            // Extract username from the refresh token
+            String username = jwtUtil.extractUsernameFromRefreshToken(refreshToken);
 
-            // Return success response
-            response.put("status", "succès");
-            response.put("message", "Utilisateur enregistré avec succès!");
+            // Retrieve user details
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            if (userDetails == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+            }
+
+            // Generate a new access token
+            String newAccessToken = jwtUtil.generateToken(userDetails);
+
+            // Return the new access token in the response
+            Map<String, String> response = new HashMap<>();
+            response.put("token", newAccessToken);
+
             return ResponseEntity.ok(response);
-        } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+        } catch (JwtTokenExpiredException e) {
+            // Handle token expiration specifically
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token has expired");
+        } catch (JwtTokenInvalidException e) {
+            // Handle invalid token exceptions
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
+        } catch (Exception e) {
+            // Log the exception for debugging
+            e.printStackTrace();
+            // Return a generic error message
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the refresh token");
         }
     }
 
-
-    @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String token) {
-        String username = jwtUtil.extractUsername(token.substring(7));
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        final String jwt = jwtUtil.generateToken(userDetails);
-        return ResponseEntity.ok(new AuthenticationResponse(jwt));
-    }
 }

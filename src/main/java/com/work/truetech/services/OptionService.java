@@ -29,6 +29,9 @@ public class OptionService implements IOptionService {
     @Value("${upload.path}")
     private String upload;
 
+    @Autowired
+    private FileStorageService fileStorageService;
+
     public String getOptionsPath() {
         return upload + "/options";
     }
@@ -96,18 +99,19 @@ public class OptionService implements IOptionService {
     @Override
     public Option updateOption(Long optionId, Option updatedOption, MultipartFile file) throws IOException {
         String uploadPath = getOptionsPath();
-        Optional<Option> optionalOption = optionRepository.findById(optionId);
 
+        // Retrieve the existing option by ID
+        Optional<Option> optionalOption = optionRepository.findById(optionId);
         if (optionalOption.isPresent()) {
             Option existingOption = optionalOption.get();
 
-            // Update the existing Option's properties
-            existingOption.setTitle(updatedOption.getTitle());
-            existingOption.setClientPrice(updatedOption.getClientPrice());
-            existingOption.setSupplierPrice(updatedOption.getSupplierPrice());
-            existingOption.setQuantity(updatedOption.getQuantity());
-            existingOption.setDescription(updatedOption.getDescription());
-            existingOption.setReparation(updatedOption.getReparation());
+            // Update only the necessary fields
+            existingOption.setTitle(updatedOption.getTitle() != null ? updatedOption.getTitle() : existingOption.getTitle());
+            existingOption.setClientPrice(updatedOption.getClientPrice() != null ? updatedOption.getClientPrice() : existingOption.getClientPrice());
+            existingOption.setSupplierPrice(updatedOption.getSupplierPrice() != null ? updatedOption.getSupplierPrice() : existingOption.getSupplierPrice());
+            existingOption.setQuantity(updatedOption.getQuantity() > 0 ? updatedOption.getQuantity() : existingOption.getQuantity());
+            existingOption.setDescription(updatedOption.getDescription() != null ? updatedOption.getDescription() : existingOption.getDescription());
+            existingOption.setReparation(updatedOption.getReparation() != null ? updatedOption.getReparation() : existingOption.getReparation());
 
             // Check if a new file is provided
             if (file != null && !file.isEmpty()) {
@@ -119,29 +123,24 @@ public class OptionService implements IOptionService {
                     }
                 }
 
-                // Ensure the upload directory exists
-                File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()) {
-                    uploadDir.mkdirs();
-                }
-
                 // Generate the new filename
                 String originalFileName = file.getOriginalFilename();
                 String newFileName = optionId + "_" + originalFileName;
 
-                // Save the new file to the server
-                Path filePath = Paths.get(uploadPath, newFileName);
-                Files.write(filePath, file.getBytes());
+                // Use an asynchronous method to save the file
+                fileStorageService.saveFile(file, newFileName, uploadPath);
 
                 // Update the Option entity with the new filename (not the full path)
                 existingOption.setImage(newFileName);
             }
 
+            // Save the updated option entity
             return optionRepository.save(existingOption);
         } else {
             throw new RuntimeException("Option non trouvé avec id: " + optionId);
         }
     }
+
 
 
     @Override

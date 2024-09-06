@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 //@RequestMapping("/api/model")
@@ -88,26 +89,40 @@ public class ModelController {
 
     @PutMapping("/admin/model/update-model/{id}")
     @ResponseBody
-    public ResponseEntity<?> updateModel(@PathVariable("id") Long modelId, @RequestParam("title") String title,
-                             @RequestParam(value = "file", required = false) MultipartFile file) {
-        // Check if the model with the same name already exists
-        if (modelRepository.findByTitle(title)!= null) {
+    public ResponseEntity<?> updateModel(@PathVariable("id") Long modelId,
+                                         @RequestParam("title") String title,
+                                         @RequestParam(value = "file", required = false) MultipartFile file) {
+
+        // Retrieve the existing model by ID
+        Optional<Model> existingModelOpt = modelRepository.findById(modelId);
+        if (!existingModelOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Model non trouvé avec id: " + modelId);
+        }
+
+        Model existingModel = existingModelOpt.get();
+
+        // Check if the title is being changed to one that already exists for another model
+        if (!title.equals(existingModel.getTitle()) && modelRepository.findByTitle(title) != null) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Le nom du modèle existe déjà, veuillez en choisir un autre.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
+
         try {
-            Model model = new Model();
-            model.setTitle(title);
-            Model updatedModel = modelService.updateModel(modelId,model, file);
-            return new ResponseEntity<>(updatedModel, HttpStatus.CREATED);
-        }  catch (ResourceAccessException ex){
+            // Create an updated Model object with the provided details
+            Model modelToUpdate = new Model();
+            modelToUpdate.setTitle(title);
+
+            // Call the service to update the model
+            Model updatedModel = modelService.updateModel(modelId, modelToUpdate, file);
+            return new ResponseEntity<>(updatedModel, HttpStatus.OK);
+        } catch (ResourceAccessException ex) {
             throw new ResourceAccessException("Network issue encountered.");
-        }  catch (IOException e) {
+        } catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
+
 
     @DeleteMapping("/admin/model/delete-model/{id}")
     @ResponseBody

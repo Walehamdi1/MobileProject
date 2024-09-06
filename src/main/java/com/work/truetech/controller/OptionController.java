@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 //@RequestMapping("/api/option")
@@ -97,38 +98,50 @@ public class OptionController {
 
     @PutMapping("/admin/option/update-option/{id}")
     @ResponseBody
-    public ResponseEntity<?> updateOption(@PathVariable("id") Long optionId, @RequestParam("title") String title,
-                               @RequestParam("description") String description,
-                               @RequestParam("clientPrice") Long clientPrice,
-                               @RequestParam("supplierPrice") Long supplierPrice,
-                               @RequestParam("reparation") Long reparation,
-                               @RequestParam("quantity") int quantity,
-                               @RequestParam(value = "file", required = false) MultipartFile file) {
-        if (optionRepository.findByTitle(title)!= null) {
+    public ResponseEntity<?> updateOption(@PathVariable("id") Long optionId,
+                                          @RequestParam("title") String title,
+                                          @RequestParam("description") String description,
+                                          @RequestParam("clientPrice") Long clientPrice,
+                                          @RequestParam("supplierPrice") Long supplierPrice,
+                                          @RequestParam("reparation") Long reparation,
+                                          @RequestParam("quantity") int quantity,
+                                          @RequestParam(value = "file", required = false) MultipartFile file) {
+
+        // Retrieve the existing option by ID
+        Optional<Option> existingOptionOpt = optionRepository.findById(optionId);
+        if (!existingOptionOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Option non trouvé avec id: " + optionId);
+        }
+
+        Option existingOption = existingOptionOpt.get();
+
+        // Check if the title is being changed to one that already exists for another option
+        if (!title.equals(existingOption.getTitle()) && optionRepository.findByTitle(title) != null) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Le nom de l'option existe déjà, veuillez en choisir un autre.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
         try {
-            Option option = new Option();
-            option.setTitle(title);
-            option.setDescription(description);
-            option.setSupplierPrice(supplierPrice);
-            option.setClientPrice(clientPrice);
-            option.setReparation(reparation);
-            option.setQuantity(quantity);
+            // Create an updated Option object with the provided details
+            Option optionToUpdate = new Option();
+            optionToUpdate.setTitle(title);
+            optionToUpdate.setDescription(description);
+            optionToUpdate.setSupplierPrice(supplierPrice);
+            optionToUpdate.setClientPrice(clientPrice);
+            optionToUpdate.setReparation(reparation);
+            optionToUpdate.setQuantity(quantity);
 
-            Option updatedOption = optionService.updateOption(optionId,option, file);
-            return new ResponseEntity<>(updatedOption, HttpStatus.CREATED);
-        }  catch (ResourceAccessException ex){
+            // Call the service to update the option
+            Option updatedOption = optionService.updateOption(optionId, optionToUpdate, file);
+            return new ResponseEntity<>(updatedOption, HttpStatus.OK);
+        } catch (ResourceAccessException ex) {
             throw new ResourceAccessException("Network issue encountered.");
-        }  catch (IOException e) {
+        } catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-
     }
+
 
     @DeleteMapping("/admin/option/delete-option/{id}")
     @ResponseBody

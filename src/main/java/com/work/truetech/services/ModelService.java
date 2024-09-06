@@ -25,6 +25,9 @@ public class ModelService implements IModelService {
     ModelRepository modelRepository;
 
     @Autowired
+    private FileStorageService fileStorageService;
+
+    @Autowired
     PhoneRepository phoneRepository;
     @Value("${upload.path}")
     private String upload;
@@ -98,11 +101,16 @@ public class ModelService implements IModelService {
     @Override
     public Model updateModel(Long modelId, Model updatedModel, MultipartFile file) throws IOException {
         String uploadPath = getModelsPath();
-        Optional<Model> existingModelOpt = modelRepository.findById(modelId);
 
+        // Retrieve the existing model by ID
+        Optional<Model> existingModelOpt = modelRepository.findById(modelId);
         if (existingModelOpt.isPresent()) {
             Model existingModel = existingModelOpt.get();
-            existingModel.setTitle(updatedModel.getTitle());
+
+            // Update the title if it's provided
+            if (updatedModel.getTitle() != null && !updatedModel.getTitle().isEmpty()) {
+                existingModel.setTitle(updatedModel.getTitle());
+            }
 
             // Check if a new file is provided
             if (file != null && !file.isEmpty()) {
@@ -138,6 +146,7 @@ public class ModelService implements IModelService {
             throw new EntityNotFoundException("Model avec id " + modelId + " non trouvé");
         }
     }
+
 
     @Override
     public void deleteModel(Long id) {

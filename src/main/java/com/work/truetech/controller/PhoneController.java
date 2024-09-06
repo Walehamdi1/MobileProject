@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 //@RequestMapping("/api/phone")
@@ -72,27 +73,40 @@ public class PhoneController {
 
     @PutMapping("/admin/phone/update-phone/{id}")
     @ResponseBody
-    public ResponseEntity<?> updatePhone(@PathVariable("id") Long phoneId, @RequestParam("title") String title,
-                             @RequestParam("file") MultipartFile file) {
-        if (phoneRepository.findByTitle(title)!= null) {
+    public ResponseEntity<?> updatePhone(@PathVariable("id") Long phoneId,
+                                         @RequestParam(value = "title", required = false) String title,
+                                         @RequestParam(value = "file", required = false) MultipartFile file) {
+
+        // Retrieve the existing phone by ID
+        Optional<Phone> existingPhoneOpt = phoneRepository.findById(phoneId);
+        if (!existingPhoneOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Phone avec id " + phoneId + " non trouvé");
+        }
+
+        Phone existingPhone = existingPhoneOpt.get();
+
+        // Perform the duplicate name check only if the title is being changed
+        if (title != null && !title.equals(existingPhone.getTitle()) && phoneRepository.findByTitle(title) != null) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Le nom de l'option existe déjà, veuillez en choisir un autre.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-        try {
 
-            Phone phone = new Phone();
-            phone.setTitle(title);
-            Phone updatedPhone = iPhoneService.updatePhone(phoneId,phone, file);
-            return new ResponseEntity<>(updatedPhone, HttpStatus.CREATED);
-        }  catch (ResourceAccessException ex){
+        try {
+            // Create an updated Phone object with the provided title
+            Phone phoneToUpdate = new Phone();
+            phoneToUpdate.setTitle(title != null ? title : existingPhone.getTitle());
+
+            // Call the service to update the phone
+            Phone updatedPhone = iPhoneService.updatePhone(phoneId, phoneToUpdate, file);
+            return new ResponseEntity<>(updatedPhone, HttpStatus.OK);
+        } catch (ResourceAccessException ex) {
             throw new ResourceAccessException("Network issue encountered.");
-        }  catch (IOException e) {
+        } catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-
     }
+
 
     @DeleteMapping("/admin/phone/delete-phone/{id}")
     @ResponseBody

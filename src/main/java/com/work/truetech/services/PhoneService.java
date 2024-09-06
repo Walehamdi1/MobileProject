@@ -36,6 +36,9 @@ public class PhoneService implements IPhoneService {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    private FileStorageService fileStorageService;
+
     public String getPhonesPath() {
         return upload + "/phones";
     }
@@ -86,14 +89,14 @@ public class PhoneService implements IPhoneService {
     public Phone updatePhone(Long phoneId, Phone updatedPhone, MultipartFile file) throws IOException {
         String uploadPath = getPhonesPath();
 
+        // Retrieve the existing phone
         Optional<Phone> existingPhoneOpt = phoneRepository.findById(phoneId);
-
         if (existingPhoneOpt.isPresent()) {
             Phone existingPhone = existingPhoneOpt.get();
 
-            // Update the title and models
-            existingPhone.setTitle(updatedPhone.getTitle());
-            existingPhone.setModels(updatedPhone.getModels());
+            // Update the title and models if they have changed
+            existingPhone.setTitle(updatedPhone.getTitle() != null ? updatedPhone.getTitle() : existingPhone.getTitle());
+            existingPhone.setModels(updatedPhone.getModels() != null ? updatedPhone.getModels() : existingPhone.getModels());
 
             // Check if a new file is provided
             if (file != null && !file.isEmpty()) {
@@ -105,29 +108,24 @@ public class PhoneService implements IPhoneService {
                     }
                 }
 
-                // Ensure the upload directory exists
-                File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()) {
-                    uploadDir.mkdirs();
-                }
-
                 // Generate the new filename
                 String originalFileName = file.getOriginalFilename();
                 String newFileName = existingPhone.getId() + "_" + originalFileName;
 
-                // Save the new file to the server
-                Path filePath = Paths.get(uploadPath, newFileName);
-                Files.write(filePath, file.getBytes());
+                // Use the asynchronous method to save the file
+                fileStorageService.saveFile(file, newFileName, uploadPath);
 
                 // Update the Phone entity with the new filename (not the full path)
                 existingPhone.setImage(newFileName);
             }
 
+            // Save the updated phone entity
             return phoneRepository.save(existingPhone);
         } else {
             throw new EntityNotFoundException("Phone avec id " + phoneId + " non trouvé");
         }
     }
+
 
 
     @Override

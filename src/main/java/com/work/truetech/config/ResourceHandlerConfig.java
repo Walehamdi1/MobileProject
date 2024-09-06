@@ -9,12 +9,12 @@ public class ResourceHandlerConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/api/phones/**")
-                .addResourceLocations("classpath:/fils/phones/");
+                .addResourceLocations("classpath:/fils/phones/").setCachePeriod(0);;
         registry.addResourceHandler("/api/models/**")
-                .addResourceLocations("classpath:/fils/models/");
+                .addResourceLocations("classpath:/fils/models/").setCachePeriod(0);;
         registry.addResourceHandler("/api/options/**")
-                .addResourceLocations("classpath:/fils/options/");
+                .addResourceLocations("classpath:/fils/options/").setCachePeriod(0);;
         registry.addResourceHandler("/api/video/**")
-                .addResourceLocations("classpath:/fils/video/");
+                .addResourceLocations("classpath:/fils/video/").setCachePeriod(0);;
     }
 }

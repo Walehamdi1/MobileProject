@@ -70,8 +70,7 @@ public class PhoneService implements IPhoneService {
         String newFileName = savedPhone.getId() + "_" + originalFileName;
 
         // Save the file to the server with the new filename
-        Path filePath = Paths.get(uploadPath, newFileName);
-        Files.write(filePath, file.getBytes());
+        fileStorageService.saveFile(file, newFileName, uploadPath);
 
         // Save only the new filename (not the full path) in the Phone entity
         savedPhone.setImage(newFileName);

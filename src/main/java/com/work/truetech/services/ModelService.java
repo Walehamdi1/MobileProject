@@ -133,8 +133,7 @@ public class ModelService implements IModelService {
                 String newFileName = modelId + "_" + originalFileName;
 
                 // Save the new file to the server
-                Path filePath = Paths.get(uploadPath, newFileName);
-                Files.write(filePath, file.getBytes());
+                fileStorageService.saveFile(file, newFileName, uploadPath);
 
                 // Update the Model entity with the new filename (not the full path)
                 existingModel.setImage(newFileName);

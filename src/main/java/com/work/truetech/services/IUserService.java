@@ -15,5 +15,6 @@ public interface IUserService {
     List<User> retrieveAllUsers();
     User toggleUserValidity(Long userId);
     ResponseEntity<?> updateUser(Long userId, User user);
+    long countAllUsers();
 
 }

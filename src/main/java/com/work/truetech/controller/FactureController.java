@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,12 +69,27 @@ public class FactureController {
     }
 
     @GetMapping("/total-count")
-    public long getTotalInvoiceCount() {
-        return factureRepository.count();
+    public ResponseEntity<?> getTotalInvoiceCount() {
+        long count = factureRepository.count();
+        return ResponseEntity.ok().body(Collections.singletonMap("totalCount", count));
     }
 
     @GetMapping("/item/{id}")
     public List<OptionDTO> getFactureDetails(@PathVariable Long id) {
         return factureService.getFactureById(id);
+    }
+
+    @GetMapping("/total-sum")
+    public ResponseEntity<?> getTotalSumOfAllFactures() {
+        try {
+            double totalSum = factureService.calculateTotalSumOfAllFactures();
+            // Return the total sum as a JSON object
+            Map<String, Double> response = Collections.singletonMap("totalSum", totalSum);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            // Handle exceptions by returning an error message
+            Map<String, String> errorResponse = Collections.singletonMap("error", e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
     }
 }

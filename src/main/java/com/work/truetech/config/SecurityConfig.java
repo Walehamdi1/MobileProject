@@ -43,7 +43,6 @@ public class SecurityConfig {
                         .requestMatchers("/options/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN").anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Stateless session management
-
                 // Add JWT filter before UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 

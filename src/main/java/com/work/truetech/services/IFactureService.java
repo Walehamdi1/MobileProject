@@ -9,4 +9,6 @@ public interface IFactureService {
     Facture createFacture(FactureDTO factureDTO);
     List<Facture> retrieveAllFacture();
     void cancelFacture(Long factureId);
+    double calculateTotalSumOfAllFactures();
+    long countAllFactures();
 }

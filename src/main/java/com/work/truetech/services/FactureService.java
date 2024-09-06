@@ -168,4 +168,15 @@ public class FactureService implements IFactureService{
         return dtoList;
     }
 
+    @Override
+    public double calculateTotalSumOfAllFactures() {
+        List<Facture> factures = factureRepository.findAll();
+        return factures.stream()
+                .mapToDouble(Facture::getTotal)
+                .sum();
+    }
+    @Override
+    public long countAllFactures() {
+        return factureRepository.count();
+    }
 }

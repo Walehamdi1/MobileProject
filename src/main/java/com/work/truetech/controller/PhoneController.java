@@ -10,8 +10,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.work.truetech.entity.Phone;
 import com.work.truetech.repository.PhoneRepository;
 import com.work.truetech.services.IPhoneService;
-
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,5 +122,6 @@ public class PhoneController {
             throw new ResourceAccessException("Network issue encountered.");
         }
     }
+
 
 }

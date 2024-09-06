@@ -59,8 +59,7 @@ public class OptionService implements IOptionService {
                 String newFileName = savedOption.getId() + "_" + originalFileName;
 
                 // Save the new file to the server
-                Path filePath = Paths.get(uploadPath, newFileName);
-                Files.write(filePath, file.getBytes());
+                fileStorageService.saveFile(file, newFileName, uploadPath);
 
                 // Update the Option entity with the new filename (not the full path)
                 savedOption.setImage(newFileName);

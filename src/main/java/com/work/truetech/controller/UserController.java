@@ -10,10 +10,7 @@ import com.work.truetech.entity.User;
 import com.work.truetech.services.IUserService;
 import org.springframework.web.client.ResourceAccessException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/admin")
@@ -109,4 +106,17 @@ public class UserController {
         }
     }
 
+    @GetMapping("/count")
+    public ResponseEntity<?> getUserCount() {
+        try {
+            long count = userService.countAllUsers();
+            // Return the count as a JSON object
+            Map<String, Long> response = Collections.singletonMap("count", count);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            // Return an error message as a JSON object
+            Map<String, String> errorResponse = Collections.singletonMap("error", "Error retrieving user count: " + e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
 }

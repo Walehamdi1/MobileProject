@@ -89,4 +89,9 @@ public class UserService implements IUserService{
         }
     }
 
+    @Override
+    public long countAllUsers() {
+        return userRepository.count();
+    }
+
 }

@@ -32,6 +32,9 @@ public class JwtUtil {
     @Value("${jwt.refresh.expiration}")
     private long refreshTokenExpiration;
 
+    @Value("${jwt.token.expiration}")
+    private long tokenExpiration;
+
     @PostConstruct
     public void init() {
         secretKey = Keys.hmacShaKeyFor(secret.getBytes());
@@ -41,7 +44,7 @@ public class JwtUtil {
         User user = userRepository.findByUsername(userDetails.getUsername());
 
         if (user == null) {
-            throw new RuntimeException("User not found for username: " + userDetails.getUsername());
+            throw new RuntimeException("Utilisateur non trouvé pour le nom d'utilisateur : " + userDetails.getUsername());
         }
 
         Map<String, Object> claims = new HashMap<>();
@@ -61,7 +64,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
+                .setExpiration(new Date(System.currentTimeMillis() + tokenExpiration)) // 10 hours
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -74,7 +77,7 @@ public class JwtUtil {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            throw new JwtTokenExpiredException("JWT token has expired", e);
+            throw new JwtTokenExpiredException("Le jeton JWT a expiré", e);
         } catch (JwtException e) {
             throw new JwtTokenInvalidException("JWT token is invalid", e);
         }
@@ -112,7 +115,7 @@ public class JwtUtil {
         User user = userRepository.findByUsername(userDetails.getUsername());
 
         if (user == null) {
-            throw new RuntimeException("User not found for username: " + userDetails.getUsername());
+            throw new RuntimeException("Utilisateur non trouvé pour le nom d'utilisateur: " + userDetails.getUsername());
         }
 
         Map<String, Object> claims = new HashMap<>();

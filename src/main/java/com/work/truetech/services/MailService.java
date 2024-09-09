@@ -35,6 +35,6 @@ public class MailService {
 
         mailSender.send(mimeMessage);
 
-        System.out.println("Mail sent successfully!");
+        System.out.println("Mail envoyé avec succès !");
     }
 }

@@ -49,13 +49,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     }
                 }
             } catch (JwtTokenExpiredException e) {
-                sendJsonResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "JWT token has expired");
+                sendJsonResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Le jeton JWT a expiré!");
                 return;
             } catch (JwtTokenInvalidException e) {
-                sendJsonResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "JWT token is invalid");
+                sendJsonResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Le jeton JWT n'est pas valide!");
                 return;
             } catch (Exception e) {
-                sendJsonResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred");
+                sendJsonResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Une erreur s'est produite!");
                 return;
             }
         }

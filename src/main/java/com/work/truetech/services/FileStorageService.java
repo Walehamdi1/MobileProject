@@ -23,7 +23,7 @@ public class FileStorageService {
             Path filePath = upload.resolve(fileName);
             Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            throw new IOException("Could not save file", e);
+            throw new IOException("Impossible d'enregistrer le fichier", e);
         }
     }
 }

@@ -84,7 +84,7 @@ public class UserService implements IUserService{
             return ResponseEntity.ok(savedUser);
         } else {
             Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "User not found with id: " + id);
+            errorResponse.put("error", "Utilisateur non trouvé avec id: " + id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }

@@ -82,12 +82,12 @@ public class FactureService implements IFactureService{
         // Create FactureOption entities and calculate total cost
         for (FactureOptionDTO optionDTO : factureDTO.getOptions()) {
             Option option = optionRepository.findById(optionDTO.getOptionId())
-                    .orElseThrow(() -> new RuntimeException("Option not found"));
+                    .orElseThrow(() -> new RuntimeException("Option non trouvée"));
 
             // Reduce the option's quantity by the quantity specified in the DTO
             int remainingQuantity = option.getQuantity() - optionDTO.getQuantity();
             if (remainingQuantity < 0) {
-                throw new RuntimeException("Not enough quantity available for option: " + option.getTitle());
+                throw new RuntimeException("Quantité insuffisante disponible pour l'option: " + option.getTitle());
             }
             option.setQuantity(remainingQuantity);
 
@@ -125,7 +125,7 @@ public class FactureService implements IFactureService{
     public void cancelFacture(Long factureId) {
         // Retrieve the facture
         Facture facture = factureRepository.findById(factureId)
-                .orElseThrow(() -> new RuntimeException("Facture not found"));
+                .orElseThrow(() -> new RuntimeException("Facture non trouvée"));
 
         // Restore the quantity of each option associated with the facture
         for (FactureOption factureOption : facture.getFactureOptions()) {
@@ -152,13 +152,13 @@ public class FactureService implements IFactureService{
     }
     public List<OptionDTO> getFactureById(Long id) {
         Facture facture = factureRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Facture not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Facture non trouvée avec l'identifiant: " + id));
 
         List<OptionDTO> dtoList = new ArrayList<>();
         for (FactureOption factureOption : facture.getFactureOptions()) {
             Long optionId = factureOption.getOption().getId(); // Assuming FactureOption has a reference to Option directly.
             Option option = optionRepository.findById(optionId)
-                    .orElseThrow(() -> new RuntimeException("Option not found with id: " + optionId));
+                    .orElseThrow(() -> new RuntimeException("Option non trouvée avec l'identifiant: " + optionId));
 
             OptionDTO opt = new OptionDTO();
             opt.setQuantity(factureOption.getQuantity());

@@ -11,5 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class OptionDTO {
     private int quantity;
+    private Long price;
     private String title;
+    private Long reparation;
 }

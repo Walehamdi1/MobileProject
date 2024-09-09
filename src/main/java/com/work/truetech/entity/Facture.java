@@ -25,6 +25,7 @@ public class Facture {
     private int phone;
     private String address;
     private boolean reparationStatus;
+    private boolean factureStatus;
     private boolean deliveryStatus;
     private double deliveryPrice;
     private double total;

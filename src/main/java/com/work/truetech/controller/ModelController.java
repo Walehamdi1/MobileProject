@@ -37,7 +37,6 @@ public class ModelController {
                                              @RequestParam("file") MultipartFile file, @PathVariable("phoneId") Long phoneId) {
 
         try {
-            // Check if the model with the same name already exists
             if (modelRepository.findByTitle(title)!= null) {
                 Map<String, String> response = new HashMap<>();
                 response.put("message", "Le nom du modèle existe déjà, veuillez en choisir un autre.");
@@ -92,16 +91,12 @@ public class ModelController {
     public ResponseEntity<?> updateModel(@PathVariable("id") Long modelId,
                                          @RequestParam("title") String title,
                                          @RequestParam(value = "file", required = false) MultipartFile file) {
-
-        // Retrieve the existing model by ID
         Optional<Model> existingModelOpt = modelRepository.findById(modelId);
         if (!existingModelOpt.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Model non trouvé avec id: " + modelId);
         }
-
         Model existingModel = existingModelOpt.get();
 
-        // Check if the title is being changed to one that already exists for another model
         if (!title.equals(existingModel.getTitle()) && modelRepository.findByTitle(title) != null) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Le nom du modèle existe déjà, veuillez en choisir un autre.");
@@ -109,11 +104,9 @@ public class ModelController {
         }
 
         try {
-            // Create an updated Model object with the provided details
             Model modelToUpdate = new Model();
             modelToUpdate.setTitle(title);
 
-            // Call the service to update the model
             Model updatedModel = modelService.updateModel(modelId, modelToUpdate, file);
             return new ResponseEntity<>(updatedModel, HttpStatus.OK);
         } catch (ResourceAccessException ex) {

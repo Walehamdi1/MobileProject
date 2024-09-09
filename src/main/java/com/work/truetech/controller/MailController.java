@@ -20,12 +20,7 @@ public class MailController {
     MailService emailService;
     @PostMapping("/api/send-email")
     public ResponseEntity<Map<String, String>> sendEmail(@RequestBody ContactRequest contactRequest) {
-
-        System.out.println("Received email: " + contactRequest.getEmail());
-        System.out.println("Received message: " + contactRequest.getMessage());
-
         Map<String, String> response = new HashMap<>();
-
         try {
             emailService.sendSimpleEmail(contactRequest);
             response.put("status", "succès");

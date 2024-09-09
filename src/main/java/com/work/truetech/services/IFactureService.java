@@ -11,4 +11,5 @@ public interface IFactureService {
     void cancelFacture(Long factureId);
     double calculateTotalSumOfAllFactures();
     long countAllFactures();
+    Facture toggleFactureStatus(Long factureId);
 }

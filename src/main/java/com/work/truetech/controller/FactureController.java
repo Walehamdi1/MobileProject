@@ -83,13 +83,17 @@ public class FactureController {
     public ResponseEntity<?> getTotalSumOfAllFactures() {
         try {
             double totalSum = factureService.calculateTotalSumOfAllFactures();
-            // Return the total sum as a JSON object
             Map<String, Double> response = Collections.singletonMap("totalSum", totalSum);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            // Handle exceptions by returning an error message
             Map<String, String> errorResponse = Collections.singletonMap("error", e.getMessage());
             return ResponseEntity.status(500).body(errorResponse);
         }
+    }
+
+    @PutMapping("/{id}/confirm")
+    public ResponseEntity<Facture> confirmFacture(@PathVariable Long id) {
+        Facture updatedFacture = factureService.toggleFactureStatus(id);
+        return ResponseEntity.ok(updatedFacture);
     }
 }

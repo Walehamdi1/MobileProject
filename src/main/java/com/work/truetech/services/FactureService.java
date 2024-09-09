@@ -69,6 +69,7 @@ public class FactureService implements IFactureService{
         facture.setDeliveryStatus(factureDTO.isDeliveryStatus());
         facture.setDeliveryPrice(factureDTO.getLivraisonPrice());
         facture.setUserId(currentUserId);
+        facture.setFactureStatus(false);
 
         double totalCost = factureDTO.getLivraisonPrice(); // Start with the delivery price
 
@@ -163,6 +164,12 @@ public class FactureService implements IFactureService{
             OptionDTO opt = new OptionDTO();
             opt.setQuantity(factureOption.getQuantity());
             opt.setTitle(option.getTitle());
+            opt.setReparation(option.getReparation());
+            if (facture.getUserId() == null) {
+                opt.setPrice(option.getClientPrice());
+            } else {
+                opt.setPrice(option.getSupplierPrice());
+            }
             dtoList.add(opt);
         }
         return dtoList;
@@ -178,5 +185,15 @@ public class FactureService implements IFactureService{
     @Override
     public long countAllFactures() {
         return factureRepository.count();
+    }
+
+    @Override
+    public Facture toggleFactureStatus(Long factureId) {
+        Facture facture = factureRepository.findById(factureId)
+                .orElseThrow(() -> new RuntimeException("Facture not found with id: " + factureId));
+
+        // Toggle facture status
+        facture.setFactureStatus(!facture.isFactureStatus());
+        return factureRepository.save(facture);
     }
 }

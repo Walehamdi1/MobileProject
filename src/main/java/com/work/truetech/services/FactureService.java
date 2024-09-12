@@ -17,11 +17,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import java.util.LinkedHashMap;
 
 import java.security.SecureRandom;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class FactureService implements IFactureService{
@@ -192,8 +199,58 @@ public class FactureService implements IFactureService{
         Facture facture = factureRepository.findById(factureId)
                 .orElseThrow(() -> new RuntimeException("Facture not found with id: " + factureId));
 
-        // Toggle facture status
         facture.setFactureStatus(!facture.isFactureStatus());
         return factureRepository.save(facture);
+    }
+    public Double getWeeklyTotal() {
+        LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
+        return factureRepository.findWeeklyTotal(oneWeekAgo);
+    }
+
+
+
+    public Map<LocalDate, Double> getWeeklyTotalByDay() {
+        LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate endOfWeek = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        // Fetch factures within the date range using LocalDateTime
+        List<Facture> factures = factureRepository.findAllByCreationDateBetween(
+                startOfWeek.atStartOfDay(),
+                endOfWeek.atTime(23, 59, 59)
+        );
+
+        // Group by LocalDate and sort by date in ascending order using a LinkedHashMap
+        return factures.stream()
+                .collect(Collectors.groupingBy(
+                        facture -> facture.getCreationDate().toLocalDate(),
+                        LinkedHashMap::new,  // Ensure insertion order is maintained
+                        Collectors.summingDouble(Facture::getTotal)
+                ))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey()) // Sort by date (LocalDate) key
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue,  // Merge function (not used here)
+                        LinkedHashMap::new  // Maintain order in the resulting map
+                ));
+    }
+
+    public Map<String, Double> getMonthlyTotal() {
+        LocalDate startOfYear = LocalDate.now().with(TemporalAdjusters.firstDayOfYear());
+        LocalDate endOfYear = LocalDate.now().with(TemporalAdjusters.lastDayOfYear());
+
+        List<Facture> factures = factureRepository.findAllByCreationDateBetween(
+                startOfYear.atStartOfDay(),
+                endOfYear.atTime(23, 59, 59)
+        );
+
+        return factures.stream()
+                .collect(Collectors.groupingBy(
+                        facture -> facture.getCreationDate().getYear() + "-" + String.format("%02d", facture.getCreationDate().getMonthValue()),
+                        LinkedHashMap::new,
+                        Collectors.summingDouble(Facture::getTotal)
+                ));
     }
 }

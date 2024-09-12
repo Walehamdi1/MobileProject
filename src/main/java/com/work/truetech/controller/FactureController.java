@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -95,5 +96,15 @@ public class FactureController {
     public ResponseEntity<Facture> confirmFacture(@PathVariable Long id) {
         Facture updatedFacture = factureService.toggleFactureStatus(id);
         return ResponseEntity.ok(updatedFacture);
+    }
+
+    @GetMapping("/weekly-totals")
+    public Map<LocalDate, Double> getWeeklyTotalsByDay() {
+        return factureService.getWeeklyTotalByDay();
+    }
+
+    @GetMapping("/monthly-totals")
+    public Map<String, Double> getMonthlyTotals() {
+        return factureService.getMonthlyTotal();
     }
 }

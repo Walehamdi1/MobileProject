@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,10 @@ public class Facture {
     private Long userId;
 
     @Column(unique = true, nullable = false)
-    private String code; // New attribute for the unique code
+    private String code;
+
+    @Column(nullable = true)
+    private LocalDateTime creationDate = LocalDateTime.now();
 
 
     @OneToMany(mappedBy = "facture", cascade = CascadeType.ALL)

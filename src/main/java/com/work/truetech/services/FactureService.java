@@ -10,6 +10,7 @@ import com.work.truetech.repository.OptionRepository;
 import com.work.truetech.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -66,7 +67,6 @@ public class FactureService implements IFactureService{
             }
         }
 
-
         // Create a new Facture entity
         Facture facture = new Facture();
         facture.setFullName(factureDTO.getFullName());
@@ -110,8 +110,14 @@ public class FactureService implements IFactureService{
             // Save the FactureOption entity
             factureOptionRepository.save(factureOption);
 
-            // Calculate the total cost: clientPrice + reparation (multiplied by quantity)
-            totalCost += (option.getClientPrice() + option.getReparation()) * optionDTO.getQuantity();
+            // Calculate the total cost: clientPrice (multiplied by quantity)
+            // Include reparation cost only if reparationStatus is true
+            double optionCost = option.getClientPrice() * optionDTO.getQuantity();
+            if (factureDTO.isReparationStatus()) {
+                optionCost += option.getReparation() * optionDTO.getQuantity();
+            }
+
+            totalCost += optionCost;
 
             // Add the FactureOption to the Facture's list
             facture.getFactureOptions().add(factureOption);
@@ -119,10 +125,10 @@ public class FactureService implements IFactureService{
 
         // Set the calculated total cost
         facture.setTotal(totalCost);
-
         // Save the facture again with its options and the calculated total
         return factureRepository.save(facture);
     }
+
 
     @Override
     public List<Facture> retrieveAllFacture() {

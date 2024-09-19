@@ -49,10 +49,10 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-    @Bean
+     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*"));  // Allow all origins (consider restricting this in production)
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200","http://213.130.144.115:4200"));  
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
         configuration.setExposedHeaders(Arrays.asList("x-auth-token"));
@@ -60,6 +60,7 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

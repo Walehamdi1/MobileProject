@@ -1,5 +1,6 @@
 package com.work.truetech.controller;
 
+import com.work.truetech.entity.Phone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -151,5 +152,12 @@ public class OptionController {
         } catch (ResourceAccessException ex){
             throw new ResourceAccessException("Network issue encountered.");
         }
+    }
+
+
+    @GetMapping("/api/option/most-bought-options")
+    public ResponseEntity<List<Map<String, Long>>> getTotalOptionsBought() {
+        List<Map<String, Long>> totalOptionsBought = optionService.getTotalOptionsBoughtByPhone();
+        return ResponseEntity.ok(totalOptionsBought);
     }
 }

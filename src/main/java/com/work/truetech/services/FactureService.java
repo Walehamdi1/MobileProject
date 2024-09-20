@@ -10,6 +10,8 @@ import com.work.truetech.repository.OptionRepository;
 import com.work.truetech.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,6 +41,8 @@ public class FactureService implements IFactureService{
     OptionRepository optionRepository;
     @Autowired
     FactureOptionRepository factureOptionRepository;
+    @Autowired
+    private JavaMailSender mailSender;
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int CODE_LENGTH = 8;
@@ -122,13 +126,25 @@ public class FactureService implements IFactureService{
             // Add the FactureOption to the Facture's list
             facture.getFactureOptions().add(factureOption);
         }
-
+        sendEmailNotification(facture);
         // Set the calculated total cost
         facture.setTotal(totalCost);
         // Save the facture again with its options and the calculated total
         return factureRepository.save(facture);
     }
+    private void sendEmailNotification(Facture facture) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo("walahamdi0@gmail.com");
+        message.setSubject("New Facture Created: " + facture.getCode());
+        message.setText("A new facture has been created.\n\n"
+                + "Facture Details:\n"
+                + "Full Name: " + facture.getFullName() + "\n"
+                + "Phone: " + facture.getPhone() + "\n"
+                + "Address: " + facture.getAddress() + "\n"
+                + "Code: " + facture.getCode());
 
+        mailSender.send(message);
+    }
 
     @Override
     public List<Facture> retrieveAllFacture() {

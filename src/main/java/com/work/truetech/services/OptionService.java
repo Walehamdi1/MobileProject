@@ -1,5 +1,7 @@
 package com.work.truetech.services;
 
+import com.work.truetech.entity.Phone;
+import com.work.truetech.repository.FactureOptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,8 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class OptionService implements IOptionService {
@@ -168,4 +169,22 @@ public class OptionService implements IOptionService {
         }
     }
 
+    @Autowired
+    FactureOptionRepository factureOptionRepository;
+
+    public List<Map<String, Long>> getTotalOptionsBoughtByPhone() {
+        List<Object[]> result = factureOptionRepository.findTotalOptionsBoughtByPhone();
+        List<Map<String, Long>> phoneOptionsTotal = new ArrayList<>();
+
+        for (Object[] row : result) {
+            String phoneTitle = (String) row[0];
+            Long totalQuantity = (Long) row[1];
+
+            Map<String, Long> phoneData = new HashMap<>();
+            phoneData.put(phoneTitle, totalQuantity);
+            phoneOptionsTotal.add(phoneData);
+        }
+
+        return phoneOptionsTotal;
+    }
 }

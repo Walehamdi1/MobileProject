@@ -41,6 +41,11 @@ public class OptionService implements IOptionService {
         String uploadPath = getOptionsPath();
         Optional<Model> optModel = modelRepository.findById(modelId);
 
+        // Validate that OptionType is not null and set by the client
+        if (option.getOptionType() == null) {
+            throw new RuntimeException("OptionType must be specified (CLIENT, SUPPLIER, or BOTH).");
+        }
+
         // Save the Option entity first to generate an ID
         Option savedOption = optionRepository.save(option);
 
@@ -112,6 +117,11 @@ public class OptionService implements IOptionService {
             existingOption.setQuantity(updatedOption.getQuantity() > 0 ? updatedOption.getQuantity() : existingOption.getQuantity());
             existingOption.setDescription(updatedOption.getDescription() != null ? updatedOption.getDescription() : existingOption.getDescription());
             existingOption.setReparation(updatedOption.getReparation() != null ? updatedOption.getReparation() : existingOption.getReparation());
+
+            // Update the optionType field if provided in the updatedOption
+            if (updatedOption.getOptionType() != null) {
+                existingOption.setOptionType(updatedOption.getOptionType());
+            }
 
             // Check if a new file is provided
             if (file != null && !file.isEmpty()) {

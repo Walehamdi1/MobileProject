@@ -1,5 +1,6 @@
 package com.work.truetech.controller;
 
+import com.work.truetech.entity.OptionType;
 import com.work.truetech.entity.Phone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,7 @@ public class OptionController {
                                                @RequestParam("supplierPrice") Long supplierPrice,
                                                @RequestParam("reparation") Long reparation,
                                                @RequestParam("quantity") int quantity,
+                                               @RequestParam("optionType") OptionType optionType,
                                                @RequestParam("file") MultipartFile file,
                                                @PathVariable("modelId") Long modelId) {
         if (optionRepository.findByTitle(title)!= null) {
@@ -54,6 +56,7 @@ public class OptionController {
             option.setClientPrice(clientPrice);
             option.setReparation(reparation);
             option.setQuantity(quantity);
+            option.setOptionType(optionType);
 
             Option createdOption = optionService.createOption(option,modelId ,file);
             return new ResponseEntity<>(createdOption, HttpStatus.CREATED);
@@ -105,6 +108,7 @@ public class OptionController {
                                           @RequestParam("clientPrice") Long clientPrice,
                                           @RequestParam("supplierPrice") Long supplierPrice,
                                           @RequestParam("reparation") Long reparation,
+                                          @RequestParam("optionType") OptionType optionType,
                                           @RequestParam("quantity") int quantity,
                                           @RequestParam(value = "file", required = false) MultipartFile file) {
 
@@ -132,6 +136,7 @@ public class OptionController {
             optionToUpdate.setClientPrice(clientPrice);
             optionToUpdate.setReparation(reparation);
             optionToUpdate.setQuantity(quantity);
+            optionToUpdate.setOptionType(optionType);
 
             // Call the service to update the option
             Option updatedOption = optionService.updateOption(optionId, optionToUpdate, file);

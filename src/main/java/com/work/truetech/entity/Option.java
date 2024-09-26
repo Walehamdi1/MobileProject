@@ -34,6 +34,9 @@ public class Option implements Serializable {
     @JsonIgnore
     private Model model;
 
+    @Enumerated(EnumType.STRING) // Store as a String in the database
+    private OptionType optionType;
+
     @OneToMany(mappedBy = "option", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<FactureOption> factureOptions = new ArrayList<>();

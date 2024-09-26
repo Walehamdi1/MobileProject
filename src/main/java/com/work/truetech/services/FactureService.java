@@ -81,6 +81,7 @@ public class FactureService implements IFactureService{
         facture.setDeliveryPrice(factureDTO.getLivraisonPrice());
         facture.setUserId(currentUserId);
         facture.setFactureStatus(false);
+        facture.setStatus(Status.Pending);
 
         double totalCost = factureDTO.getLivraisonPrice(); // Start with the delivery price
 

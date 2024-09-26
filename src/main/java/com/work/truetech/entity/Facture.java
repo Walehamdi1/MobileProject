@@ -21,7 +21,6 @@ public class Facture {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String fullName;
     private int phone;
     private String address;
@@ -30,6 +29,7 @@ public class Facture {
     private boolean deliveryStatus;
     private double deliveryPrice;
     private double total;
+    private Status status;
 
     @Column(name = "user_id")
     private Long userId;

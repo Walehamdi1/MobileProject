@@ -117,6 +117,7 @@ public class OptionService implements IOptionService {
             existingOption.setQuantity(updatedOption.getQuantity() > 0 ? updatedOption.getQuantity() : existingOption.getQuantity());
             existingOption.setDescription(updatedOption.getDescription() != null ? updatedOption.getDescription() : existingOption.getDescription());
             existingOption.setReparation(updatedOption.getReparation() != null ? updatedOption.getReparation() : existingOption.getReparation());
+            existingOption.setOptionType(updatedOption.getOptionType() != null ? updatedOption.getOptionType() : existingOption.getOptionType());
 
             // Update the optionType field if provided in the updatedOption
             if (updatedOption.getOptionType() != null) {

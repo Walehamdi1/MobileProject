@@ -8,6 +8,7 @@ import com.work.truetech.repository.FactureOptionRepository;
 import com.work.truetech.repository.FactureRepository;
 import com.work.truetech.repository.OptionRepository;
 import com.work.truetech.repository.UserRepository;
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mail.SimpleMailMessage;
@@ -225,12 +226,15 @@ public class FactureService implements IFactureService{
         facture.setFactureStatus(!facture.isFactureStatus());
         return factureRepository.save(facture);
     }
-    public Double getWeeklyTotal() {
-        LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
-        return factureRepository.findWeeklyTotal(oneWeekAgo);
+
+    @Override
+    public Facture updateFactureStatus(Long factureId, Status newStatus) {
+        Facture facture = factureRepository.findById(factureId)
+                .orElseThrow(() -> new ResourceNotFoundException("Facture not found with id: " + factureId));
+
+        facture.setStatus(newStatus);
+        return factureRepository.save(facture);
     }
-
-
 
     public Map<LocalDate, Double> getWeeklyTotalByDay() {
         LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
@@ -276,4 +280,7 @@ public class FactureService implements IFactureService{
                         Collectors.summingDouble(Facture::getTotal)
                 ));
     }
+
+
+
 }

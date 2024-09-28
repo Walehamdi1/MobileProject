@@ -61,10 +61,14 @@ public class PhoneController {
         try {
             List<Phone> listPhone = iPhoneService.retrievePhones();
             return listPhone;
-        } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+        } catch (ResourceAccessException ex) {
+            throw new ResourceAccessException("Network issue encountered while retrieving phones.");
+        } catch (Exception e) {
+            // Rethrow the exception to be handled by GlobalExceptionHandler
+            throw new RuntimeException("Failed to retrieve phones: " + e.getMessage(), e);
         }
     }
+
 
     @GetMapping("/api/phone/find-phone/{phoneId}")
     @ResponseBody

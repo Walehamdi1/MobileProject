@@ -81,22 +81,30 @@ public class OptionController {
 
     @GetMapping("/api/option/find-options/{id}")
     @ResponseBody
-    public List<?> getOptionByModel(@PathVariable("id") Long modelId ) {
+    public ResponseEntity<List<Option>> getOptionByModel(@PathVariable("id") Long modelId) {
         try {
             List<Option> listOption = optionService.retrieveOptionByModel(modelId);
-            return listOption;
-        } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            return ResponseEntity.ok(listOption);
+        } catch (ResourceAccessException ex) {
+            throw new ResourceAccessException("Network issue encountered while retrieving options.");
+        } catch (Exception e) {
+            // Rethrow the exception to be handled by GlobalExceptionHandler
+            throw new RuntimeException("Failed to retrieve options: " + e.getMessage(), e);
         }
     }
 
+
     @GetMapping("/api/option/find-option/{optionId}")
     @ResponseBody
-    public Option getOptionById(@PathVariable("optionId") long optionId) {
+    public ResponseEntity<Option> getOptionById(@PathVariable("optionId") long optionId) {
         try {
-            return optionService.getOptionById(optionId);
-        } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            Option option = optionService.getOptionById(optionId);
+            return ResponseEntity.ok(option);
+        } catch (ResourceAccessException ex) {
+            throw new ResourceAccessException("Network issue encountered while retrieving option.");
+        } catch (Exception e) {
+            // Rethrow the exception to be handled by GlobalExceptionHandler
+            throw new RuntimeException("Failed to retrieve option: " + e.getMessage(), e);
         }
     }
 
@@ -158,11 +166,16 @@ public class OptionController {
             throw new ResourceAccessException("Network issue encountered.");
         }
     }
-
-
     @GetMapping("/api/option/most-bought-options")
     public ResponseEntity<List<Map<String, Long>>> getTotalOptionsBought() {
-        List<Map<String, Long>> totalOptionsBought = optionService.getTotalOptionsBoughtByPhone();
-        return ResponseEntity.ok(totalOptionsBought);
+        try {
+            List<Map<String, Long>> totalOptionsBought = optionService.getTotalOptionsBoughtByPhone();
+            return ResponseEntity.ok(totalOptionsBought);
+        } catch (ResourceAccessException ex) {
+            throw new ResourceAccessException("Network issue encountered while retrieving total options bought.");
+        } catch (Exception e) {
+            // Rethrow the exception to be handled by GlobalExceptionHandler
+            throw new RuntimeException("Failed to retrieve total options bought: " + e.getMessage(), e);
+        }
     }
 }

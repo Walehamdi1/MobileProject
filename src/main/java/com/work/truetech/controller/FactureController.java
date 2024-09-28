@@ -63,12 +63,20 @@ public class FactureController {
     }
 
     @GetMapping("/findpag")
-    public Page<Facture> getInvoices(
+    public ResponseEntity<Page<Facture>> getInvoices(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-
-        return factureService.getInvoices(page, size);
+        try {
+            Page<Facture> invoices = factureService.getInvoices(page, size);
+            return ResponseEntity.ok(invoices);
+        } catch (ResourceAccessException ex) {
+            throw new ResourceAccessException("Network issue encountered while retrieving invoices.");
+        } catch (Exception e) {
+            // Rethrow the exception to be handled by GlobalExceptionHandler
+            throw new RuntimeException("Failed to retrieve invoices: " + e.getMessage(), e);
+        }
     }
+
 
     @GetMapping("/total-count")
     public ResponseEntity<?> getTotalInvoiceCount() {

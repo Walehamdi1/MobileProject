@@ -3,6 +3,7 @@ package com.work.truetech.controller;
 import com.work.truetech.dto.FactureDTO;
 import com.work.truetech.dto.OptionDTO;
 import com.work.truetech.entity.Facture;
+import com.work.truetech.entity.Status;
 import com.work.truetech.repository.FactureRepository;
 import com.work.truetech.services.FactureService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,4 +108,21 @@ public class FactureController {
     public Map<String, Double> getMonthlyTotals() {
         return factureService.getMonthlyTotal();
     }
+
+    @PutMapping("/status/{id}")
+    public ResponseEntity<?> updateFactureStatus(@PathVariable Long id, @RequestBody Map<String, String> requestBody) {
+        String newStatusString = requestBody.get("newStatus");
+
+        Map<String, String> response = new HashMap<>();
+        try {
+            Status newStatus = Status.valueOf(newStatusString);
+            factureService.updateFactureStatus(id, newStatus);
+            response.put("message", "Status updated successfully");
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            response.put("error", "Invalid status value");
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
 }

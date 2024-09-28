@@ -67,24 +67,33 @@ public class ModelController {
 
     @GetMapping("/api/model/find-models/{id}")
     @ResponseBody
-    public List<?> getModelByPhoneName(@PathVariable("id") Long phoneId ) {
+    public ResponseEntity<List<Model>> getModelByPhoneName(@PathVariable("id") Long phoneId) {
         try {
             List<Model> listModel = modelService.retrieveModelByPhone(phoneId);
-            return listModel;
-        } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            return ResponseEntity.ok(listModel);
+        } catch (ResourceAccessException ex) {
+            throw new ResourceAccessException("Network issue encountered while retrieving models.");
+        } catch (Exception e) {
+            // Rethrow the exception to be handled by GlobalExceptionHandler
+            throw new RuntimeException("Failed to retrieve models: " + e.getMessage(), e);
         }
     }
 
+
     @GetMapping("/api/model/find-model/{modelId}")
     @ResponseBody
-    public Model getModelById(@PathVariable("modelId") long modelId) {
+    public ResponseEntity<Model> getModelById(@PathVariable("modelId") long modelId) {
         try {
-            return modelService.getModelById(modelId);
-        } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            Model model = modelService.getModelById(modelId);
+            return ResponseEntity.ok(model);
+        } catch (ResourceAccessException ex) {
+            throw new ResourceAccessException("Network issue encountered while retrieving model.");
+        } catch (Exception e) {
+            // Rethrow the exception to be handled by GlobalExceptionHandler
+            throw new RuntimeException("Failed to retrieve model: " + e.getMessage(), e);
         }
     }
+
 
     @PutMapping("/admin/model/update-model/{id}")
     @ResponseBody

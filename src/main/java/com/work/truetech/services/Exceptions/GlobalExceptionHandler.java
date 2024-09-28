@@ -34,5 +34,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public ResponseEntity<ErrorResponse> handleUnknownException(Exception ex) {
+        ErrorResponse errorResponse = new ErrorResponse("An unexpected error occurred. Please try again later.");
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 
 }

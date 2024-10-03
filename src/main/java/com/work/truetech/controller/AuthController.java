@@ -81,7 +81,6 @@ public class AuthController {
         Map<String, String> response = new HashMap<>();
         response.put("token", jwt);
         response.put("refreshToken", refreshToken);
-
         return ResponseEntity.ok(response);
     }
 
@@ -92,8 +91,10 @@ public class AuthController {
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(Role.USER);
-        user.setValid(true);
+        if(user.getRole()==Role.USER){
+            user.setValid(true);
+        }
+
 
         userRepository.save(user);
 

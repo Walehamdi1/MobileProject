@@ -23,6 +23,7 @@
         private String username;
         private String email;
         private String password;
+        @Enumerated(EnumType.STRING)
         private Role role;
         private int phone;
         private boolean valid;

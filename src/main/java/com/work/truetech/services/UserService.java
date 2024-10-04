@@ -61,17 +61,22 @@ public class UserService implements IUserService{
         user.setValid(!user.isValid());
         return userRepository.save(user);
     }
+    @Override
+    public long countAllUsers() {
+        return userRepository.count();
+    }
 
     @Override
-    public ResponseEntity<?> updateUser(Long id, User updatedUser) {
+    public ResponseEntity<?> updateProfil(Long id, User updatedUser) {
         Optional<User> existingUserOptional = userRepository.findById(id);
 
         if (existingUserOptional.isPresent()) {
             User existingUser = existingUserOptional.get();
             existingUser.setUsername(updatedUser.getUsername());
             existingUser.setEmail(updatedUser.getEmail());
-            existingUser.setRole(updatedUser.getRole());
             existingUser.setPhone(updatedUser.getPhone());
+            existingUser.setAddress(updatedUser.getAddress());
+            existingUser.setCity(updatedUser.getCity());
 
             // Encode password only if it's provided in the request
             if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
@@ -89,9 +94,6 @@ public class UserService implements IUserService{
         }
     }
 
-    @Override
-    public long countAllUsers() {
-        return userRepository.count();
-    }
+
 
 }

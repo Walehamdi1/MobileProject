@@ -37,7 +37,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 getAuthorities(user),
                 user.getEmail(),
                 user.getPhone(),
-                user.getId()
+                user.getId(),
+                user.getAddress(),
+                user.getCity()
         );
     }
     private Collection<? extends GrantedAuthority> getAuthorities(User user) {

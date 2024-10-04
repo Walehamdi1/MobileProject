@@ -55,19 +55,27 @@ public class JwtUtil {
                     .collect(Collectors.toList()));
         }
 
+        // Add email, address, city, and phone to the claims
         if (user.getEmail() != null) {
             claims.put("email", user.getEmail());
         }
-
+        if (user.getAddress() != null) {
+            claims.put("address", user.getAddress());
+        }
+        if (user.getCity() != null) {
+            claims.put("city", user.getCity().toString()); // Convert enum to string
+        }
+        claims.put("phone", user.getPhone());
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + tokenExpiration)) // 10 hours
+                .setExpiration(new Date(System.currentTimeMillis() + tokenExpiration))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
+
 
     public Claims extractClaims(String token) {
         try {
@@ -112,34 +120,52 @@ public class JwtUtil {
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
+        // Retrieve the User entity using the username from userDetails
         User user = userRepository.findByUsername(userDetails.getUsername());
 
         if (user == null) {
-            throw new RuntimeException("Utilisateur non trouvé pour le nom d'utilisateur: " + userDetails.getUsername());
+            throw new RuntimeException("User not found for username: " + userDetails.getUsername());
         }
 
         Map<String, Object> claims = new HashMap<>();
 
+        // Add roles to claims if not null
         if (userDetails.getAuthorities() != null) {
             claims.put("roles", userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList()));
         }
 
+        // Add email to claims if not null
         if (user.getEmail() != null) {
             claims.put("email", user.getEmail());
         }
 
+        // Add phone to claims if not 0 (assuming 0 is an invalid phone number)
+        if (user.getPhone() != 0) {
+            claims.put("phone", user.getPhone());
+        }
 
+        // Add address to claims if not null
+        if (user.getAddress() != null) {
+            claims.put("address", user.getAddress());
+        }
 
+        // Add city to claims if not null
+        if (user.getCity() != null) {
+            claims.put("city", user.getCity().name()); // Assuming city is an enum, we store the name of the enum
+        }
+
+        // Generate and return the refresh token
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(userDetails.getUsername())
+                .setSubject(user.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
+
 
     public boolean validateRefreshToken(String token) {
         final String username = extractUsernameFromRefreshToken(token);

@@ -1,5 +1,6 @@
 package com.work.truetech.services;
 
+import com.work.truetech.entity.City;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,13 +18,22 @@ public class CustomUserDetails implements UserDetails {
     @Getter
     private int phone;
 
-    public CustomUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities, String email, int phone,Long id) {
+    @Getter
+    private String address;
+
+    @Getter
+    private City city; // Assuming city is a String, but if it's an enum, change to the appropriate type
+
+    public CustomUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities,
+                             String email, int phone, Long id, String address, City city) {
         this.username = username;
         this.password = password;
         this.authorities = authorities;
         this.email = email;
         this.phone = phone;
         this.id = id;
+        this.address = address;
+        this.city = city;
     }
 
     @Override

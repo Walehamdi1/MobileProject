@@ -87,18 +87,22 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         if (userRepository.findByUsername(user.getUsername()) != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username is already taken");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Username is already taken");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        if(user.getRole()==Role.USER){
+
+        if (user.getRole() == Role.USER) {
             user.setValid(true);
         }
 
-
         userRepository.save(user);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "User registered successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/refresh-token")
@@ -107,13 +111,17 @@ public class AuthController {
 
         // Check if the refresh token is present in the request
         if (refreshToken == null || refreshToken.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Refresh token is missing");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Refresh token is missing");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
         try {
             // Validate the refresh token
             if (!jwtUtil.validateRefreshToken(refreshToken)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Invalid refresh token");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
             // Extract username from the refresh token
@@ -122,7 +130,9 @@ public class AuthController {
             // Retrieve user details
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             if (userDetails == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "User not found");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
             // Generate a new access token
@@ -135,15 +145,21 @@ public class AuthController {
             return ResponseEntity.ok(response);
         } catch (JwtTokenExpiredException e) {
             // Handle token expiration specifically
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token has expired");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Refresh token has expired");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (JwtTokenInvalidException e) {
             // Handle invalid token exceptions
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Invalid refresh token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (Exception e) {
             // Log the exception for debugging
             e.printStackTrace();
             // Return a generic error message
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the refresh token");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "An error occurred while processing the refresh token");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 

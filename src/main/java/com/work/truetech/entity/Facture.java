@@ -44,4 +44,8 @@ public class Facture {
     @OneToMany(mappedBy = "facture", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<FactureOption> factureOptions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "facture", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<FactureProduct> factureProducts = new ArrayList<>();
 }

@@ -3,7 +3,11 @@ package com.work.truetech.controller;
 import com.work.truetech.config.JwtTokenExpiredException;
 import com.work.truetech.config.JwtTokenInvalidException;
 import com.work.truetech.config.JwtUtil;
+import com.work.truetech.entity.PasswordResetCode;
+import com.work.truetech.repository.PasswordResetCodeRepository;
 import com.work.truetech.services.CustomUserDetails;
+import com.work.truetech.services.MailService;
+import com.work.truetech.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +28,10 @@ import com.work.truetech.repository.UserRepository;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -39,12 +45,19 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PasswordResetCodeRepository passwordResetCodeRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    MailService mailService;
+    @Autowired
+    UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
@@ -161,6 +174,21 @@ public class AuthController {
             response.put("message", "An error occurred while processing the refresh token");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> requestResetCode(@RequestBody Map<String, String> request) {
+        return userService.requestResetCode(request);
+    }
+
+    @PostMapping("/verify-reset-code")
+    public ResponseEntity<Map<String, String>> verifyResetCode(@RequestBody Map<String, String> request) {
+        return userService.verifyResetCode(request);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody Map<String, String> request) {
+        return userService.resetPassword(request);
     }
 
 }

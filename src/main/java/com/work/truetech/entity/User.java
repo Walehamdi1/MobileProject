@@ -24,8 +24,7 @@
         private String email;
         private String password;
         private String address;
-        @Enumerated(EnumType.STRING)
-        private City city;
+        private String city;
         @Enumerated(EnumType.STRING)
         private Role role;
         private int phone;

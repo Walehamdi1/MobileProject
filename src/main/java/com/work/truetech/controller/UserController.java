@@ -68,11 +68,11 @@ public class UserController {
         }
     }
 
-    @PutMapping("/api/user/update-profil/{id}")
+    @PutMapping("/api/update-profil")
     @ResponseBody
-    public ResponseEntity<?> updateUser(@PathVariable("id") Long userId, @RequestBody User updatedUser) {
+    public ResponseEntity<?> updateUser(@RequestBody User updatedUser) {
         try {
-            return userService.updateProfil(userId, updatedUser);
+            return userService.updateProfil(updatedUser);
         } catch (ResourceAccessException ex){
             throw new ResourceAccessException("Network issue encountered.");
         }
@@ -130,7 +130,7 @@ public class UserController {
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
-    @PutMapping("/change-password")
+    @PutMapping("/api/change-password")
     public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest passwordChangeRequest) {
         // Retrieve the Authentication object from the SecurityContextHolder
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

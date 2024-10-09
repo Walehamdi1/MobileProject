@@ -63,7 +63,7 @@ public class JwtUtil {
             claims.put("address", user.getAddress());
         }
         if (user.getCity() != null) {
-            claims.put("city", user.getCity().toString()); // Convert enum to string
+            claims.put("city", user.getCity()); // Convert enum to string
         }
         claims.put("phone", user.getPhone());
 
@@ -153,7 +153,7 @@ public class JwtUtil {
 
         // Add city to claims if not null
         if (user.getCity() != null) {
-            claims.put("city", user.getCity().name()); // Assuming city is an enum, we store the name of the enum
+            claims.put("city", user.getCity()); // Assuming city is an enum, we store the name of the enum
         }
 
         // Generate and return the refresh token

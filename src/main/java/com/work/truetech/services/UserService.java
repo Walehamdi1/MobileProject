@@ -87,7 +87,6 @@ public class UserService implements IUserService{
         if (existingUser != null) {
             // Update user details
             existingUser.setUsername(updatedUser.getUsername());
-            existingUser.setEmail(updatedUser.getEmail());
             existingUser.setPhone(updatedUser.getPhone());
             existingUser.setAddress(updatedUser.getAddress());
             existingUser.setCity(updatedUser.getCity());
@@ -131,13 +130,19 @@ public class UserService implements IUserService{
         return String.valueOf(100000 + new Random().nextInt(900000));
     }
 
+
     private void saveResetCode(User user, String resetCode) {
+        // Delete any existing reset code for the user
+        passwordResetCodeRepository.deleteByUser(user);
+
+        // Create and save the new reset code
         PasswordResetCode passwordResetCode = new PasswordResetCode();
         passwordResetCode.setCode(resetCode);
         passwordResetCode.setUser(user);
         passwordResetCode.setExpiryDate(new Date(System.currentTimeMillis() + 10 * 60 * 1000)); // 10 minutes expiry
         passwordResetCodeRepository.save(passwordResetCode);
     }
+
 
     public ResponseEntity<Map<String, String>> verifyResetCode(Map<String, String> request) {
         String code = request.get("code");

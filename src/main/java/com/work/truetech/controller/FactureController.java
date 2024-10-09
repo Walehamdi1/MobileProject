@@ -35,13 +35,13 @@ public class FactureController {
         try {
             factureService.createFacture(factureDTO);
             response.put("status", "success");
-            response.put("message", "Facture successfully added");
+            response.put("message", "Facture ajoutée avec succès");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         } catch (Exception e) {
             response.put("status", "error");
-            response.put("message", "Failed to create facture: " + e.getMessage());
+            response.put("message", "Échec de la création de la facture: " + e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -53,7 +53,7 @@ public class FactureController {
         factureService.cancelFacture(id);
         return ResponseEntity.noContent().build();}
             catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }
     }
 
@@ -70,10 +70,10 @@ public class FactureController {
             Page<Facture> invoices = factureService.getInvoices(page, size);
             return ResponseEntity.ok(invoices);
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered while retrieving invoices.");
+            throw new ResourceAccessException("Problème de réseau rencontré lors de la récupération des factures.");
         } catch (Exception e) {
             // Rethrow the exception to be handled by GlobalExceptionHandler
-            throw new RuntimeException("Failed to retrieve invoices: " + e.getMessage(), e);
+            throw new RuntimeException("Échec de la récupération des factures: " + e.getMessage(), e);
         }
     }
 
@@ -125,10 +125,10 @@ public class FactureController {
         try {
             Status newStatus = Status.valueOf(newStatusString);
             factureService.updateFactureStatus(id, newStatus);
-            response.put("message", "Status updated successfully");
+            response.put("message", "Statut mis à jour avec succès");
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            response.put("error", "Invalid status value");
+            response.put("error", "Valeur d'état non valide");
             return ResponseEntity.badRequest().body(response);
         }
     }

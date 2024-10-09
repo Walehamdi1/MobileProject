@@ -95,11 +95,11 @@ public class UserController {
         try {
             User updatedUser = userService.toggleUserValidity(id);
             Map<String, String> response = new HashMap<>();
-            response.put("message", "User is now " + (updatedUser.isValid() ? "valid" : "invalid"));
+            response.put("message", "User est " + (updatedUser.isValid() ? "valid" : "invalid"));
             response.put("userId", String.valueOf(updatedUser.getId()));
             return ResponseEntity.ok(response);
         }  catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }  catch (Exception e) {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", e.getMessage());
@@ -113,7 +113,7 @@ public class UserController {
             List<Facture> listFacture = factureService.retrieveAllFacture();
             return listFacture;
         } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }
     }
 
@@ -126,7 +126,7 @@ public class UserController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             // Return an error message as a JSON object
-            Map<String, String> errorResponse = Collections.singletonMap("error", "Error retrieving user count: " + e.getMessage());
+            Map<String, String> errorResponse = Collections.singletonMap("error", "Erreur lors de la récupération du nombre d'utilisateurs: " + e.getMessage());
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
@@ -142,14 +142,14 @@ public class UserController {
         User user = userRepository.findByUsername(username);
         if (user == null) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "User not found");
+            response.put("message", "Utilisateur non trouvé");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
         // Check if the old password matches the current password
         if (!passwordEncoder.matches(passwordChangeRequest.getOldPassword(), user.getPassword())) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Old password is incorrect");
+            response.put("message", "L'ancien mot de passe est incorrect");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
@@ -160,7 +160,7 @@ public class UserController {
         userRepository.save(user);
 
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Password changed successfully");
+        response.put("message", "Mot de passe modifié avec succès");
         return ResponseEntity.ok(response);
     }
 

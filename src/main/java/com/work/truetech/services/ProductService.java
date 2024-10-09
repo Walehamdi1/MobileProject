@@ -117,14 +117,14 @@ public class ProductService implements IProductService {
 
             return productRepository.save(existingProduct);
         } else {
-            throw new EntityNotFoundException("Product not found with ID: " + productId);
+            throw new EntityNotFoundException("Produit non trouvé avec l'ID: " + productId);
         }
     }
 
     @Override
     public Product retrieveProductById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found with ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Produit non trouvé avec l'ID:" + id));
     }
 
     @Override
@@ -140,14 +140,14 @@ public class ProductService implements IProductService {
             if (existingProduct.getImage() != null) {
                 File imageFile = new File(uploadDir, existingProduct.getImage());
                 if (imageFile.exists() && !imageFile.delete()) {
-                    System.err.println("Failed to delete the image file: " + imageFile.getPath());
+                    System.err.println("Impossible de supprimer le fichier image: " + imageFile.getPath());
                 }
             }
 
             // Delete the product from the repository
             productRepository.delete(existingProduct);
         } else {
-            throw new RuntimeException("Product not found with ID: " + id);
+            throw new RuntimeException("Produit non trouvé avec ID: " + id);
         }
     }
 }

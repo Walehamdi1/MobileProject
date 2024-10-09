@@ -146,7 +146,7 @@ public class PhoneService implements IPhoneService {
                 if (imageFile.exists()) {
                     if (!imageFile.delete()) {
                         // Log or handle if the file deletion fails
-                        System.err.println("Failed to delete the image file: " + imageFile.getPath());
+                        System.err.println("Impossible de supprimer le fichier image: " + imageFile.getPath());
                     }
                 }
             }

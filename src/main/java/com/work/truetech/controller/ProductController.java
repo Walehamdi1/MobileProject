@@ -51,7 +51,7 @@ public class ProductController {
             Product createdProduct = productService.createProduct(product, file);
             return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         } catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -64,9 +64,9 @@ public class ProductController {
             List<Product> listProduct = productService.retrieveProducts();
             return listProduct;
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered while retrieving products.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         } catch (Exception e) {
-            throw new RuntimeException("Failed to retrieve products: " + e.getMessage(), e);
+            throw new RuntimeException("Impossible de récupérer les produits: " + e.getMessage(), e);
         }
     }
 
@@ -76,7 +76,7 @@ public class ProductController {
         try {
             return productService.retrieveProductById(productId);
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }
     }
 
@@ -116,7 +116,7 @@ public class ProductController {
             Product updatedProduct = productService.updateProduct(productId, productToUpdate, file);
             return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         } catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -128,7 +128,7 @@ public class ProductController {
         try {
             productService.deleteProduct(productId);
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }
     }
 }

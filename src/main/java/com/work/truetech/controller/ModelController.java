@@ -61,7 +61,7 @@ public class ModelController {
         List<Model> listModel = modelService.retrieveModels();
         return listModel;
         } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }
     }
 
@@ -72,10 +72,10 @@ public class ModelController {
             List<Model> listModel = modelService.retrieveModelByPhone(phoneId);
             return ResponseEntity.ok(listModel);
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered while retrieving models.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         } catch (Exception e) {
             // Rethrow the exception to be handled by GlobalExceptionHandler
-            throw new RuntimeException("Failed to retrieve models: " + e.getMessage(), e);
+            throw new RuntimeException("Échec de la récupération des modèles: " + e.getMessage(), e);
         }
     }
 
@@ -87,10 +87,10 @@ public class ModelController {
             Model model = modelService.getModelById(modelId);
             return ResponseEntity.ok(model);
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered while retrieving model.");
+            throw new ResourceAccessException("Problème de réseau rencontré lors de la récupération du modèle.");
         } catch (Exception e) {
             // Rethrow the exception to be handled by GlobalExceptionHandler
-            throw new RuntimeException("Failed to retrieve model: " + e.getMessage(), e);
+            throw new RuntimeException("Impossible de récupérer le modèle: " + e.getMessage(), e);
         }
     }
 
@@ -119,7 +119,7 @@ public class ModelController {
             Model updatedModel = modelService.updateModel(modelId, modelToUpdate, file);
             return new ResponseEntity<>(updatedModel, HttpStatus.OK);
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         } catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -132,7 +132,7 @@ public class ModelController {
         try {
             modelService.deleteModel(modelId);
         } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }
     }
 }

@@ -43,7 +43,7 @@ public class OptionService implements IOptionService {
 
         // Validate that OptionType is not null and set by the client
         if (option.getOptionType() == null) {
-            throw new RuntimeException("OptionType must be specified (CLIENT, SUPPLIER, or BOTH).");
+            throw new RuntimeException("OptionType doit être spécifié (CLIENT, FOURNISSEUR ou LES DEUX).");
         }
 
         // Save the Option entity first to generate an ID
@@ -78,7 +78,7 @@ public class OptionService implements IOptionService {
             // Save and return the updated Option entity
             return optionRepository.save(savedOption);
         } else {
-            throw new RuntimeException("Model not found with id: " + modelId);
+            throw new RuntimeException("Modèle non trouvé avec l'ID: " + modelId);
         }
     }
 
@@ -168,7 +168,7 @@ public class OptionService implements IOptionService {
                 if (imageFile.exists()) {
                     if (!imageFile.delete()) {
                         // Log or handle if the file deletion fails
-                        System.err.println("Failed to delete the image file: " + imageFile.getPath());
+                        System.err.println("Impossible de supprimer le fichier image: " + imageFile.getPath());
                     }
                 }
             }

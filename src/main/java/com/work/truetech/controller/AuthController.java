@@ -101,7 +101,7 @@ public class AuthController {
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         if (userRepository.findByUsername(user.getUsername()) != null) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Username is already taken");
+            response.put("message", "Le nom d'utilisateur est déjà pris");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
@@ -114,7 +114,7 @@ public class AuthController {
         userRepository.save(user);
 
         Map<String, String> response = new HashMap<>();
-        response.put("message", "User registered successfully");
+        response.put("message", "Utilisateur enregistré avec succès");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -125,7 +125,7 @@ public class AuthController {
         // Check if the refresh token is present in the request
         if (refreshToken == null || refreshToken.isEmpty()) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Refresh token is missing");
+            response.put("message", "Le jeton d'actualisation est manquant");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
@@ -133,7 +133,7 @@ public class AuthController {
             // Validate the refresh token
             if (!jwtUtil.validateRefreshToken(refreshToken)) {
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "Invalid refresh token");
+                response.put("message", "Jeton d'actualisation non valide");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
@@ -144,7 +144,7 @@ public class AuthController {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             if (userDetails == null) {
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "User not found");
+                response.put("message", "Utilisateur non trouvé");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
@@ -159,19 +159,19 @@ public class AuthController {
         } catch (JwtTokenExpiredException e) {
             // Handle token expiration specifically
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Refresh token has expired");
+            response.put("message", "Le jeton d'actualisation a expiré");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (JwtTokenInvalidException e) {
             // Handle invalid token exceptions
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Invalid refresh token");
+            response.put("message", "Jeton d'actualisation non valide");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (Exception e) {
             // Log the exception for debugging
             e.printStackTrace();
             // Return a generic error message
             Map<String, String> response = new HashMap<>();
-            response.put("message", "An error occurred while processing the refresh token");
+            response.put("message", "Une erreur s'est produite lors du traitement du jeton d'actualisation");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }

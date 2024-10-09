@@ -114,16 +114,16 @@ public class UserService implements IUserService{
         Map<String, String> response = new HashMap<>();
 
         if (user == null) {
-            response.put("message", "Email not found.");
+            response.put("message", "Email non trouvé.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
         String resetCode = generateResetCode();
         saveResetCode(user, resetCode);
 
-        mailService.sendEmail(user.getEmail(), "Your reset code", "Your reset code is: " + resetCode);
+        mailService.sendEmail(user.getEmail(), "Votre code de réinitialisation", "Votre code de réinitialisation est: " + resetCode);
 
-        response.put("message", "Reset code sent to your email.");
+        response.put("message", "Code de réinitialisation envoyé à votre e-mail.");
         return ResponseEntity.ok(response);
     }
 
@@ -146,17 +146,17 @@ public class UserService implements IUserService{
         Map<String, String> response = new HashMap<>();
 
         if (user == null) {
-            response.put("message", "Email not found.");
+            response.put("message", "Email non trouvé.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
         PasswordResetCode resetCode = passwordResetCodeRepository.findByUser(user);
         if (resetCode == null || !resetCode.getCode().equals(code) || resetCode.getExpiryDate().before(new Date())) {
-            response.put("message", "Invalid or expired reset code.");
+            response.put("message", "Code de réinitialisation non valide ou expiré.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
-        response.put("message", "Reset code verified. Proceed to reset password.");
+        response.put("message", "Code de réinitialisation vérifié. Procédez à la réinitialisation du mot de passe.");
         return ResponseEntity.ok(response);
     }
 
@@ -168,7 +168,7 @@ public class UserService implements IUserService{
 
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            response.put("message", "Email not found.");
+            response.put("message", "Email non trouvé.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
@@ -180,7 +180,7 @@ public class UserService implements IUserService{
             passwordResetCodeRepository.delete(resetCode);
         }
 
-        response.put("message", "Password has been reset successfully.");
+        response.put("message", "Le mot de passe a été réinitialisé avec succès.");
         return ResponseEntity.ok(response);
     }
 

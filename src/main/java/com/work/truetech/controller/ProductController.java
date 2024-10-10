@@ -31,6 +31,7 @@ public class ProductController {
     public ResponseEntity<?> createProduct(@RequestParam("title") String title,
                                            @RequestParam("color") String color,
                                            @RequestParam("quantity") int quantity,
+                                           @RequestParam("price") int price,
                                            @RequestParam("category") Category category,
                                            @RequestParam("file") MultipartFile file) {
         try {
@@ -46,7 +47,8 @@ public class ProductController {
             product.setTitle(title);
             product.setColor(color);
             product.setQuantity(quantity);
-            product.setCategory(category);  // Assuming category is a String for simplicity; adjust as needed
+            product.setPrice(price);
+            product.setCategory(category);
 
             Product createdProduct = productService.createProduct(product, file);
             return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
@@ -86,6 +88,7 @@ public class ProductController {
                                            @RequestParam(value = "title", required = false) String title,
                                            @RequestParam(value = "color", required = false) String color,
                                            @RequestParam(value = "quantity", required = false) Integer quantity,
+                                           @RequestParam(value = "price", required = false) Integer price,
                                            @RequestParam(value = "category", required = false) Category category,
                                            @RequestParam(value = "file", required = false) MultipartFile file) {
 
@@ -110,6 +113,7 @@ public class ProductController {
             productToUpdate.setTitle(title != null ? title : existingProduct.getTitle());
             productToUpdate.setColor(color != null ? color : existingProduct.getColor());
             productToUpdate.setQuantity(quantity != null ? quantity : existingProduct.getQuantity());
+            productToUpdate.setPrice(price != null ? price : existingProduct.getPrice());
             productToUpdate.setCategory(category != null ? category : existingProduct.getCategory());
 
             // Call the service to update the product

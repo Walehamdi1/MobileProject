@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -21,4 +20,5 @@ public class FactureDTO {
     private double livraisonPrice;
     private List<String> questions;
     private List<FactureOptionDTO> options;
+    private List<FactureProductDto> products;
 }

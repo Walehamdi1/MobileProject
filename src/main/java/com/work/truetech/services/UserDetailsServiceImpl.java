@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import com.work.truetech.entity.User;
 import com.work.truetech.repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;

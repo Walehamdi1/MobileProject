@@ -1,6 +1,5 @@
 package com.work.truetech.services;
 
-import com.work.truetech.entity.Phone;
 import com.work.truetech.repository.FactureOptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,9 +12,6 @@ import com.work.truetech.repository.OptionRepository;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 @Service

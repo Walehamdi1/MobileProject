@@ -24,6 +24,7 @@ public class Product {
     private String image;
     private String color;
     private int quantity;
+    private int price;
     @Enumerated(EnumType.STRING)
     private Category category;
 

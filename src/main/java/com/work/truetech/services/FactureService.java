@@ -1,19 +1,14 @@
 package com.work.truetech.services;
-
 import com.work.truetech.dto.FactureDTO;
 import com.work.truetech.dto.FactureOptionDTO;
+import com.work.truetech.dto.FactureProductDto;
 import com.work.truetech.dto.OptionDTO;
 import com.work.truetech.entity.*;
-import com.work.truetech.repository.FactureOptionRepository;
-import com.work.truetech.repository.FactureRepository;
-import com.work.truetech.repository.OptionRepository;
-import com.work.truetech.repository.UserRepository;
+import com.work.truetech.repository.*;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,16 +17,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import java.util.LinkedHashMap;
-
 import java.security.SecureRandom;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,7 +33,11 @@ public class FactureService implements IFactureService{
     @Autowired
     OptionRepository optionRepository;
     @Autowired
+    ProductRepository productRepository;
+    @Autowired
     FactureOptionRepository factureOptionRepository;
+    @Autowired
+    FactureProductRepository factureProductRepository;
     @Autowired
     private JavaMailSender mailSender;
 
@@ -96,40 +92,69 @@ public class FactureService implements IFactureService{
         factureRepository.save(facture);
 
         // Create FactureOption entities and calculate total cost
-        for (FactureOptionDTO optionDTO : factureDTO.getOptions()) {
-            Option option = optionRepository.findById(optionDTO.getOptionId())
-                    .orElseThrow(() -> new RuntimeException("Option non trouvée"));
+        if (factureDTO.getOptions() != null && !factureDTO.getOptions().isEmpty()) {
+            for (FactureOptionDTO optionDTO : factureDTO.getOptions()) {
+                Option option = optionRepository.findById(optionDTO.getOptionId())
+                        .orElseThrow(() -> new RuntimeException("Option non trouvée"));
 
-            // Reduce the option's quantity by the quantity specified in the DTO
-            int remainingQuantity = option.getQuantity() - optionDTO.getQuantity();
-            if (remainingQuantity < 0) {
-                throw new RuntimeException("Quantité insuffisante disponible pour l'option: " + option.getTitle());
+                // Reduce the option's quantity by the quantity specified in the DTO
+                int remainingQuantity = option.getQuantity() - optionDTO.getQuantity();
+                if (remainingQuantity < 0) {
+                    throw new RuntimeException("Quantité insuffisante disponible pour l'option: " + option.getTitle());
+                }
+                option.setQuantity(remainingQuantity);
+
+                // Save the updated option back to the repository
+                optionRepository.save(option);
+
+                FactureOption factureOption = new FactureOption();
+                factureOption.setFacture(facture);
+                factureOption.setOption(option);
+                factureOption.setQuantity(optionDTO.getQuantity());
+
+                // Save the FactureOption entity
+                factureOptionRepository.save(factureOption);
+
+                // Calculate the total cost: clientPrice (multiplied by quantity)
+                // Include reparation cost only if reparationStatus is true
+                double optionCost = option.getClientPrice() * optionDTO.getQuantity();
+                if (factureDTO.isReparationStatus()) {
+                    optionCost += option.getReparation() * optionDTO.getQuantity();
+                }
+
+                totalCost += optionCost;
+
+                // Add the FactureOption to the Facture's list
+                facture.getFactureOptions().add(factureOption);
             }
-            option.setQuantity(remainingQuantity);
-
-            // Save the updated option back to the repository
-            optionRepository.save(option);
-
-            FactureOption factureOption = new FactureOption();
-            factureOption.setFacture(facture);
-            factureOption.setOption(option);
-            factureOption.setQuantity(optionDTO.getQuantity());
-
-            // Save the FactureOption entity
-            factureOptionRepository.save(factureOption);
-
-            // Calculate the total cost: clientPrice (multiplied by quantity)
-            // Include reparation cost only if reparationStatus is true
-            double optionCost = option.getClientPrice() * optionDTO.getQuantity();
-            if (factureDTO.isReparationStatus()) {
-                optionCost += option.getReparation() * optionDTO.getQuantity();
-            }
-
-            totalCost += optionCost;
-
-            // Add the FactureOption to the Facture's list
-            facture.getFactureOptions().add(factureOption);
         }
+
+        // Loop over FactureProduct entities and calculate total cost
+        if (factureDTO.getProducts() != null && !factureDTO.getProducts().isEmpty()) {
+            for (FactureProductDto productDTO : factureDTO.getProducts()) {
+                Product product = productRepository.findById(productDTO.getProductId())
+                        .orElseThrow(() -> new RuntimeException("Product not found"));
+
+                int remainingQuantity = product.getQuantity() - productDTO.getQuantity();
+                if (remainingQuantity < 0) {
+                    throw new RuntimeException("Insufficient quantity available for product: " + product.getTitle());
+                }
+                product.setQuantity(remainingQuantity);
+                productRepository.save(product);
+
+                FactureProduct factureProduct = new FactureProduct();
+                factureProduct.setFacture(facture);
+                factureProduct.setProduct(product);
+                factureProduct.setQuantity(productDTO.getQuantity());
+                factureProductRepository.save(factureProduct);
+
+                double productCost = product.getPrice() * productDTO.getQuantity();
+                totalCost += productCost;
+
+                facture.getFactureProducts().add(factureProduct);
+            }
+        }
+
         sendEmailNotification(facture);
         // Set the calculated total cost
         facture.setTotal(totalCost);

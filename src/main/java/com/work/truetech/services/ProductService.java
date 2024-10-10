@@ -93,6 +93,8 @@ public class ProductService implements IProductService {
             existingProduct.setTitle(updatedProduct.getTitle() != null ? updatedProduct.getTitle() : existingProduct.getTitle());
             existingProduct.setColor(updatedProduct.getColor() != null ? updatedProduct.getColor() : existingProduct.getColor());
             existingProduct.setQuantity(updatedProduct.getQuantity());
+            existingProduct.setCategory(updatedProduct.getCategory());
+            existingProduct.setPrice(updatedProduct.getPrice());
 
             // Check if a new file is provided
             if (file != null && !file.isEmpty()) {

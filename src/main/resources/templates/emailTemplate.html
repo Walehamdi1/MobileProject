@@ -60,6 +60,12 @@
         <p th:text="'Téléphone :' + ${phone} + ','"></p>
         <p th:text="'Nom et prénom : ' + ${name} + ','"></p>
         <p th:text="${message}"></p>
+        <div>
+            <p>Questions sélectionnées:</p>
+            <ul class="questions-list">
+                <li th:each="question : ${questions}" th:text="${question}"></li>
+            </ul>
+        </div>
     </div>
     <div class="email-footer">
         <p>Coridalement,<br>TrueTech</p>

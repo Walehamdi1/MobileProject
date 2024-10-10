@@ -24,6 +24,8 @@ public class Facture {
     private String fullName;
     private int phone;
     private String address;
+    @ElementCollection
+    private List<String> questions = new ArrayList<>();
     private boolean reparationStatus;
     private boolean factureStatus;
     private boolean deliveryStatus;

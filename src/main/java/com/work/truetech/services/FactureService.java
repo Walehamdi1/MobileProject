@@ -67,9 +67,9 @@ public class FactureService implements IFactureService{
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             User user = userRepository.findByUsername(userDetails.getUsername());
-            if (user.getRole() == Role.SUPPLIER) {
+
                 currentUserId = user.getId();
-            }
+
         }
 
         // Create a new Facture entity
@@ -80,6 +80,8 @@ public class FactureService implements IFactureService{
         facture.setReparationStatus(factureDTO.isReparationStatus());
         facture.setDeliveryStatus(factureDTO.isDeliveryStatus());
         facture.setDeliveryPrice(factureDTO.getLivraisonPrice());
+        facture.setQuestions(factureDTO.getQuestions());
+        System.out.println("Questions: " + facture.getQuestions());
         facture.setUserId(currentUserId);
         facture.setFactureStatus(false);
         facture.setStatus(Status.Pending);
@@ -138,15 +140,31 @@ public class FactureService implements IFactureService{
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo("walahamdi0@gmail.com");
         message.setSubject("New Facture Created: " + facture.getCode());
-        message.setText("A new facture has been created.\n\n"
-                + "Facture Details:\n"
-                + "Full Name: " + facture.getFullName() + "\n"
-                + "Phone: " + facture.getPhone() + "\n"
-                + "Address: " + facture.getAddress() + "\n"
-                + "Code: " + facture.getCode());
 
+        // Build the facture details text
+        StringBuilder emailText = new StringBuilder();
+        emailText.append("A new facture has been created.\n\n")
+                .append("Facture Details:\n")
+                .append("Full Name: ").append(facture.getFullName()).append("\n")
+                .append("Phone: ").append(facture.getPhone()).append("\n")
+                .append("Address: ").append(facture.getAddress()).append("\n")
+                .append("Code: ").append(facture.getCode()).append("\n\n");
+
+        // Append the list of questions if available
+        if (!facture.getQuestions().isEmpty()) {
+            emailText.append("Questions:\n");
+            for (String question : facture.getQuestions()) {
+                emailText.append("- ").append(question).append("\n");
+            }
+        }
+
+        // Set the text of the message
+        message.setText(emailText.toString());
+
+        // Send the email
         mailSender.send(message);
     }
+
 
     @Override
     public List<Facture> retrieveAllFacture() {
@@ -221,7 +239,7 @@ public class FactureService implements IFactureService{
     @Override
     public Facture toggleFactureStatus(Long factureId) {
         Facture facture = factureRepository.findById(factureId)
-                .orElseThrow(() -> new RuntimeException("Facture not found with id: " + factureId));
+                .orElseThrow(() -> new RuntimeException("Facture not trouvé avec  id: " + factureId));
 
         facture.setFactureStatus(!facture.isFactureStatus());
         return factureRepository.save(facture);
@@ -230,7 +248,7 @@ public class FactureService implements IFactureService{
     @Override
     public Facture updateFactureStatus(Long factureId, Status newStatus) {
         Facture facture = factureRepository.findById(factureId)
-                .orElseThrow(() -> new ResourceNotFoundException("Facture not found with id: " + factureId));
+                .orElseThrow(() -> new ResourceNotFoundException("Facture not trouvé avec id: " + factureId));
 
         facture.setStatus(newStatus);
         return factureRepository.save(facture);

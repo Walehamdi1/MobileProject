@@ -1,11 +1,16 @@
 package com.work.truetech.services;
 
+import com.work.truetech.entity.User;
+import com.work.truetech.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import com.work.truetech.entity.ContactRequest;
 import org.thymeleaf.context.Context;
@@ -18,15 +23,22 @@ public class MailService {
     private JavaMailSender mailSender;
     @Autowired
     private SpringTemplateEngine templateEngine;
+    @Autowired
+    private UserRepository userRepository;
     public void sendSimpleEmail(ContactRequest contactRequest)  throws MessagingException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        User user = userRepository.findByUsername(userDetails.getUsername());
+
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 
         Context context = new Context();
-        context.setVariable("name", contactRequest.getName());
+        context.setVariable("name", user.getUsername());
         context.setVariable("message", contactRequest.getMessage());
-        context.setVariable("phone", contactRequest.getPhone());
-        context.setVariable("email", contactRequest.getEmail());
+        context.setVariable("questions", contactRequest.getQuestions());
+        context.setVariable("phone", user.getPhone());
+        context.setVariable("email", user.getEmail());
 
         String htmlContent = templateEngine.process("emailTemplate", context);
         helper.setTo("helmi.br1999@gmail.com");

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 @Getter
 @Setter
@@ -16,7 +17,5 @@ public class ContactRequest implements Serializable {
 
 
     private String message;
-    private String email;
-    private String name;
-    private int phone;
+    private ArrayList<String> questions;
 }

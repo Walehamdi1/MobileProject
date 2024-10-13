@@ -47,7 +47,7 @@ public class ModelController {
             Model createdModel = modelService.createModel(model,phoneId ,file);
             return new ResponseEntity<>(createdModel, HttpStatus.CREATED);
         }  catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }  catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }

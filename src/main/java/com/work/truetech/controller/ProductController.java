@@ -26,13 +26,13 @@ public class ProductController {
     @Autowired
     private ProductRepository productRepository;
 
-    @PostMapping("/admin/product/add-product")
+    @PostMapping("/admin/product/{categoryId}/add-product")
     @ResponseBody
     public ResponseEntity<?> createProduct(@RequestParam("title") String title,
+                                           @PathVariable("categoryId") Long categoryId,
                                            @RequestParam("color") String color,
                                            @RequestParam("quantity") int quantity,
                                            @RequestParam("price") int price,
-                                           @RequestParam("category") Category category,
                                            @RequestParam("file") MultipartFile file) {
         try {
             // Check if a product with the same title exists
@@ -48,9 +48,8 @@ public class ProductController {
             product.setColor(color);
             product.setQuantity(quantity);
             product.setPrice(price);
-            product.setCategory(category);
 
-            Product createdProduct = productService.createProduct(product, file);
+            Product createdProduct = productService.createProduct(product,categoryId, file);
             return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
         } catch (ResourceAccessException ex) {
             throw new ResourceAccessException("Problème de réseau rencontré.");

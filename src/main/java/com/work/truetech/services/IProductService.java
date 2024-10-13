@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface IProductService {
-    Product createProduct(Product product, MultipartFile file) throws IOException;
+    Product createProduct(Product product,Long categoryId, MultipartFile file) throws IOException;
     List<Product> retrieveProducts();
 
     Product updateProduct(Long phoneId, Product updatedProduct, MultipartFile file) throws IOException;

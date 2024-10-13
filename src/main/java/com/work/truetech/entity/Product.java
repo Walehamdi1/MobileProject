@@ -25,11 +25,17 @@ public class Product {
     private String color;
     private int quantity;
     private int price;
-    @Enumerated(EnumType.STRING)
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
     private Category category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<FactureProduct> factureProducts = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
+    private User user;
 
 }

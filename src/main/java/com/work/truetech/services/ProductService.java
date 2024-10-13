@@ -1,7 +1,9 @@
 package com.work.truetech.services;
 
+import com.work.truetech.entity.Category;
 import com.work.truetech.entity.Product;
 import com.work.truetech.entity.User;
+import com.work.truetech.repository.CategoryRepository;
 import com.work.truetech.repository.ProductRepository;
 import com.work.truetech.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -29,6 +31,9 @@ public class ProductService implements IProductService {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @Value("${upload.path}")
     private String uploadPath;
 
@@ -37,7 +42,9 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product createProduct(Product product, MultipartFile file) throws IOException {
+    public Product createProduct(Product product,Long categoryId, MultipartFile file) throws IOException {
+
+        Category category = categoryRepository.findById(categoryId).get();
         String uploadDir = getProductImagePath();
 
         // Get the current authenticated user
@@ -46,10 +53,10 @@ public class ProductService implements IProductService {
 
         // Find the User by ID
         User user = userRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userDetails.getId()));
+                .orElseThrow(() -> new IllegalArgumentException("User non trouvé avec l'ID: " + userDetails.getId()));
 
         // Associate the user with the product (if needed)
-        //product.setUser(user);
+        product.setUser(user);
 
         // Save the product first to generate an ID
         Product savedProduct = productRepository.save(product);
@@ -70,6 +77,7 @@ public class ProductService implements IProductService {
 
             // Save the new filename to the product entity
             savedProduct.setImage(newFileName);
+            savedProduct.setCategory(category);
         }
 
         return productRepository.save(savedProduct);

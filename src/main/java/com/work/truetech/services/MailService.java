@@ -35,7 +35,6 @@ public class MailService {
 
         Context context = new Context();
         context.setVariable("name", user.getUsername());
-        context.setVariable("message", contactRequest.getMessage());
         context.setVariable("questions", contactRequest.getQuestions());
         context.setVariable("phone", user.getPhone());
         context.setVariable("email", user.getEmail());

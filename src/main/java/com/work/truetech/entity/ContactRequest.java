@@ -16,6 +16,6 @@ import java.util.ArrayList;
 public class ContactRequest implements Serializable {
 
 
-    private String message;
+
     private ArrayList<String> questions;
 }

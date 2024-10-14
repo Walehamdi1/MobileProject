@@ -2,6 +2,7 @@ package com.work.truetech.services;
 
 import com.work.truetech.entity.Category;
 import com.work.truetech.entity.Product;
+import com.work.truetech.entity.SousCategorie;
 import com.work.truetech.entity.User;
 import com.work.truetech.repository.CategoryRepository;
 import com.work.truetech.repository.ProductRepository;
@@ -103,6 +104,7 @@ public class ProductService implements IProductService {
             existingProduct.setQuantity(updatedProduct.getQuantity());
             existingProduct.setCategory(updatedProduct.getCategory());
             existingProduct.setPrice(updatedProduct.getPrice());
+            existingProduct.setSousCategorie(updatedProduct.getSousCategorie());
 
             // Check if a new file is provided
             if (file != null && !file.isEmpty()) {
@@ -135,6 +137,16 @@ public class ProductService implements IProductService {
     public Product retrieveProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Produit non trouvé avec l'ID:" + id));
+    }
+
+    @Override
+    public List<Product> getProductsByCategory(Category category) {
+            return productRepository.findByCategory(category);
+    }
+
+    @Override
+    public List<Product> getProductBySousCategorie(SousCategorie sousCategorie) {
+        return productRepository.findBySousCategorie(sousCategorie);
     }
 
     @Override

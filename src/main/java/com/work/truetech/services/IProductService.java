@@ -1,7 +1,9 @@
 package com.work.truetech.services;
 
+import com.work.truetech.entity.Category;
 import com.work.truetech.entity.Phone;
 import com.work.truetech.entity.Product;
+import com.work.truetech.entity.SousCategorie;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -14,4 +16,6 @@ public interface IProductService {
     Product updateProduct(Long phoneId, Product updatedProduct, MultipartFile file) throws IOException;
     void deleteProduct(Long id);
     Product retrieveProductById(Long id);
+     List<Product> getProductsByCategory(Category category);
+    List<Product> getProductBySousCategorie(SousCategorie sousCategorie);
 }

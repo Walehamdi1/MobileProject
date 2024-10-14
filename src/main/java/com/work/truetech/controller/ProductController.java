@@ -1,7 +1,9 @@
 package com.work.truetech.controller;
 
+import com.work.truetech.dto.SousCategorieRequest;
 import com.work.truetech.entity.Category;
 import com.work.truetech.entity.Product;
+import com.work.truetech.entity.SousCategorie;
 import com.work.truetech.services.IProductService;
 import com.work.truetech.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,7 @@ public class ProductController {
                                            @RequestParam("color") String color,
                                            @RequestParam("quantity") int quantity,
                                            @RequestParam("price") int price,
+                                           @RequestParam("sous_categorie") SousCategorie sousCategorie,
                                            @RequestParam("file") MultipartFile file) {
         try {
             // Check if a product with the same title exists
@@ -48,6 +51,7 @@ public class ProductController {
             product.setColor(color);
             product.setQuantity(quantity);
             product.setPrice(price);
+            product.setSousCategorie(sousCategorie);
 
             Product createdProduct = productService.createProduct(product,categoryId, file);
             return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
@@ -89,6 +93,7 @@ public class ProductController {
                                            @RequestParam(value = "quantity", required = false) Integer quantity,
                                            @RequestParam(value = "price", required = false) Integer price,
                                            @RequestParam(value = "category", required = false) Category category,
+                                           @RequestParam(value = "sous_categorie", required = false) SousCategorie sousCategorie,
                                            @RequestParam(value = "file", required = false) MultipartFile file) {
 
         // Retrieve the existing product by ID
@@ -114,6 +119,7 @@ public class ProductController {
             productToUpdate.setQuantity(quantity != null ? quantity : existingProduct.getQuantity());
             productToUpdate.setPrice(price != null ? price : existingProduct.getPrice());
             productToUpdate.setCategory(category != null ? category : existingProduct.getCategory());
+            productToUpdate.setSousCategorie(sousCategorie != null ? sousCategorie : existingProduct.getSousCategorie());
 
             // Call the service to update the product
             Product updatedProduct = productService.updateProduct(productId, productToUpdate, file);
@@ -133,5 +139,21 @@ public class ProductController {
         } catch (ResourceAccessException ex) {
             throw new ResourceAccessException("Problème de réseau rencontré.");
         }
+    }
+
+    @GetMapping("/api/product/category/{categoryId}")
+    public List<Product> getProductsByCategory(@PathVariable Long categoryId) {
+        // You need to fetch the category by its ID first
+        Category category = new Category();
+        category.setId(categoryId); // Set the ID of the category, you may need to fetch it from the database
+
+        return productService.getProductsByCategory(category);
+    }
+
+    @PostMapping("/api/product/sous_category/")
+    public ResponseEntity<List<Product>> getProductsBySousCategorie(@RequestBody SousCategorieRequest request) {
+        SousCategorie sousCategorie = request.getSousCategorie();
+        List<Product> products = productService.getProductBySousCategorie(sousCategorie);
+        return ResponseEntity.ok(products);
     }
 }

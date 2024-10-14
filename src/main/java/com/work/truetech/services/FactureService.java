@@ -60,19 +60,20 @@ public class FactureService implements IFactureService{
         // Get the current authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long currentUserId = null;
+
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            User user = userRepository.findByUsername(userDetails.getUsername());
+             User user = userRepository.findByUsername(userDetails.getUsername());
 
                 currentUserId = user.getId();
 
         }
-
+        User currentUser = userRepository.findById(currentUserId).get();
         // Create a new Facture entity
         Facture facture = new Facture();
-        facture.setFullName(factureDTO.getFullName());
-        facture.setPhone(factureDTO.getPhone());
-        facture.setAddress(factureDTO.getAddress());
+        facture.setFullName(currentUser.getUsername());
+        facture.setPhone(currentUser.getPhone());
+        facture.setAddress(currentUser.getAddress());
         facture.setReparationStatus(factureDTO.isReparationStatus());
         facture.setDeliveryStatus(factureDTO.isDeliveryStatus());
         facture.setDeliveryPrice(factureDTO.getLivraisonPrice());

@@ -1,8 +1,5 @@
 package com.work.truetech.services;
-import com.work.truetech.dto.FactureDTO;
-import com.work.truetech.dto.FactureOptionDTO;
-import com.work.truetech.dto.FactureProductDto;
-import com.work.truetech.dto.OptionDTO;
+import com.work.truetech.dto.*;
 import com.work.truetech.entity.*;
 import com.work.truetech.repository.*;
 import org.apache.velocity.exception.ResourceNotFoundException;
@@ -16,14 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import java.util.LinkedHashMap;
+
+import java.util.*;
 import java.security.SecureRandom;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -197,6 +192,40 @@ public class FactureService implements IFactureService{
         return factureRepository.findAll();
     }
 
+    public Page<FactureListDTO> getAllFacturesWithUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Facture> facturesPage = factureRepository.findAll(pageable);
+
+        // Convert each Facture and its associated User into FactureListDTO
+        Page<FactureListDTO> factureListDTOPage = facturesPage.map(facture -> {
+            User user = userRepository.findById(facture.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            return new FactureListDTO(
+                    facture.getId(),
+                    user.getUsername(),
+                    (long) user.getPhone(),
+                    user.getAddress(),
+                    facture.getCode(),
+                    facture.getTotal(),
+                    facture.isFactureStatus(),
+                    facture.getDeliveryPrice(),
+                    facture.getStatus(),
+                    facture.isReparationStatus(),
+                    facture.isDeliveryStatus(),
+                    facture.getDeliveryPrice(),
+                    facture.getQuestions(),
+                    facture.getFactureOptions().stream()
+                            .map(option -> new FactureOptionDTO(option.getId(), option.getQuantity()))
+                            .toList(),
+                    facture.getFactureProducts().stream()
+                            .map(product -> new FactureProductDto(product.getId(), product.getQuantity()))
+                            .toList()
+            );
+        });
+
+        return factureListDTOPage;
+    }
     @Override
     public void cancelFacture(Long factureId) {
         // Retrieve the facture
@@ -226,29 +255,57 @@ public class FactureService implements IFactureService{
 
         return factureRepository.findAll(pageable);
     }
-    public List<OptionDTO> getFactureById(Long id) {
+    public Map<String, List<?>> getFactureById(Long id) {
         Facture facture = factureRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Facture non trouvée avec l'identifiant: " + id));
 
-        List<OptionDTO> dtoList = new ArrayList<>();
+        // Create lists for OptionDTO and ProductDTO
+        List<OptionDTO> optionDTOList = new ArrayList<>();
+        List<ProductDTO> productDTOList = new ArrayList<>();
+
+        // Process facture options and map to OptionDTO
         for (FactureOption factureOption : facture.getFactureOptions()) {
-            Long optionId = factureOption.getOption().getId(); // Assuming FactureOption has a reference to Option directly.
+            Long optionId = factureOption.getOption().getId();
             Option option = optionRepository.findById(optionId)
                     .orElseThrow(() -> new RuntimeException("Option non trouvée avec l'identifiant: " + optionId));
 
-            OptionDTO opt = new OptionDTO();
-            opt.setQuantity(factureOption.getQuantity());
-            opt.setTitle(option.getTitle());
-            opt.setReparation(option.getReparation());
+            OptionDTO optionDTO = new OptionDTO();
+            optionDTO.setQuantity(factureOption.getQuantity());
+            optionDTO.setTitle(option.getTitle());
+            optionDTO.setReparation(option.getReparation());
+
+            // Set price based on whether the user is connected or not
             if (facture.getUserId() == null) {
-                opt.setPrice(option.getClientPrice());
+                optionDTO.setPrice(option.getClientPrice());
             } else {
-                opt.setPrice(option.getSupplierPrice());
+                optionDTO.setPrice(option.getSupplierPrice());
             }
-            dtoList.add(opt);
+
+            optionDTOList.add(optionDTO);
         }
-        return dtoList;
+
+        // Process facture products and map to ProductDTO
+        for (FactureProduct factureProduct : facture.getFactureProducts()) {
+            Long productId = factureProduct.getProduct().getId();
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new RuntimeException("Produit non trouvé avec l'identifiant: " + productId));
+
+            ProductDTO productDTO = new ProductDTO();
+            productDTO.setQuantity(factureProduct.getQuantity());
+            productDTO.setTitle(product.getTitle());
+            productDTO.setPrice((long) product.getPrice());
+
+            productDTOList.add(productDTO);
+        }
+
+        // Prepare a map with OptionDTO and ProductDTO lists
+        Map<String, List<?>> resultMap = new HashMap<>();
+        resultMap.put("options", optionDTOList);
+        resultMap.put("products", productDTOList);
+
+        return resultMap;
     }
+
 
     @Override
     public double calculateTotalSumOfAllFactures() {
@@ -325,6 +382,9 @@ public class FactureService implements IFactureService{
                 ));
     }
 
-
+    @Override
+    public void deleteFacture() {
+        factureRepository.deleteAll();
+    }
 
 }

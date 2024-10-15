@@ -1,6 +1,7 @@
 package com.work.truetech.controller;
 
 import com.work.truetech.dto.FactureDTO;
+import com.work.truetech.dto.FactureListDTO;
 import com.work.truetech.dto.OptionDTO;
 import com.work.truetech.entity.Facture;
 import com.work.truetech.entity.Status;
@@ -84,10 +85,18 @@ public class FactureController {
         return ResponseEntity.ok().body(Collections.singletonMap("totalCount", count));
     }
 
+
     @GetMapping("/item/{id}")
-    public List<OptionDTO> getFactureDetails(@PathVariable Long id) {
-        return factureService.getFactureById(id);
+    public ResponseEntity<Map<String, List<?>>> getFactureDetails(@PathVariable Long id) {
+        try {
+            Map<String, List<?>> factureDetails = factureService.getFactureById(id);
+            return ResponseEntity.ok(factureDetails);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("error", List.of(e.getMessage())));
+        }
     }
+
 
     @GetMapping("/total-sum")
     public ResponseEntity<?> getTotalSumOfAllFactures() {
@@ -133,4 +142,22 @@ public class FactureController {
         }
     }
 
+    @GetMapping("/fetch")
+    public ResponseEntity<Page<FactureListDTO>> getPaginatedFacturesWithUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            Page<FactureListDTO> paginatedFactures = factureService.getAllFacturesWithUsers(page, size);
+            return ResponseEntity.ok(paginatedFactures);
+        } catch (ResourceAccessException ex) {
+            throw new ResourceAccessException("Network issue encountered while retrieving invoices.");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve invoices: " + e.getMessage(), e);
+        }
+    }
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteFacture() {
+        factureService.deleteFacture();
+        return ResponseEntity.noContent().build();
+    }
 }

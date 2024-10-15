@@ -9,10 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FactureProductDto {
-    private Long productId;
+public class ProductDTO {
     private int quantity;
-
-    public FactureProductDto(Long id) {
-    }
+    private Long price;
+    private String title;
 }

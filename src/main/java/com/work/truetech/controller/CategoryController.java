@@ -18,16 +18,20 @@ public class CategoryController {
     private CatgeoryService categoryService;
 
     @PostMapping("/admin/category/create")
-    public ResponseEntity<?> createCategory(@RequestBody Category category) {
+    public ResponseEntity<Map<String, Object>> createCategory(@RequestBody Category category) {
+        Map<String, Object> response = new HashMap<>();
         try {
             Category createdCategory = categoryService.createCategory(category);
-            return ResponseEntity.ok(createdCategory);
+            response.put("status", "success");
+            response.put("message", "Categorie ajouter avec success !");
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", e.getMessage());
+            response.put("status", "error");
+            response.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
+
 
     @GetMapping("/api/category/find")
     public ResponseEntity<List<Category>> getAllCategories() {
@@ -42,16 +46,20 @@ public class CategoryController {
     }
 
     @PutMapping("/admin/category/update/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable("id") Long categoryId, @RequestBody Category updatedCategory) {
+    public ResponseEntity<Map<String, Object>> updateCategory(@PathVariable("id") Long categoryId, @RequestBody Category updatedCategory) {
+        Map<String, Object> response = new HashMap<>();
         try {
-            Category updated = categoryService.updateCategory(categoryId, updatedCategory);
-            return ResponseEntity.ok(updated);
+            categoryService.updateCategory(categoryId, updatedCategory);
+            response.put("status", "success");
+            response.put("message", "Categorie modifier avec success !");
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", e.getMessage());
+            response.put("status", "error");
+            response.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
+
 
     @DeleteMapping("/admin/category/delete/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable("id") Long id) {

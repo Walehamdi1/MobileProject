@@ -100,7 +100,7 @@ public class ProductService implements IProductService {
 
             // Update fields if they are provided
             existingProduct.setTitle(updatedProduct.getTitle() != null ? updatedProduct.getTitle() : existingProduct.getTitle());
-            existingProduct.setColor(updatedProduct.getColor() != null ? updatedProduct.getColor() : existingProduct.getColor());
+            existingProduct.setColors(updatedProduct.getColors() != null ? updatedProduct.getColors() : existingProduct.getColors());
             existingProduct.setQuantity(updatedProduct.getQuantity());
             existingProduct.setCategory(updatedProduct.getCategory());
             existingProduct.setPrice(updatedProduct.getPrice());

@@ -32,7 +32,7 @@ public class ProductController {
     @ResponseBody
     public ResponseEntity<?> createProduct(@RequestParam("title") String title,
                                            @PathVariable("categoryId") Long categoryId,
-                                           @RequestParam("color") String color,
+                                           @RequestParam("color") List<String> color,
                                            @RequestParam("quantity") int quantity,
                                            @RequestParam("price") int price,
                                            @RequestParam("sous_categorie") SousCategorie sousCategorie,
@@ -48,7 +48,7 @@ public class ProductController {
             // Create a new product
             Product product = new Product();
             product.setTitle(title);
-            product.setColor(color);
+            product.setColors(color);
             product.setQuantity(quantity);
             product.setPrice(price);
             product.setSousCategorie(sousCategorie);
@@ -89,7 +89,7 @@ public class ProductController {
     @ResponseBody
     public ResponseEntity<?> updateProduct(@PathVariable("id") Long productId,
                                            @RequestParam(value = "title", required = false) String title,
-                                           @RequestParam(value = "color", required = false) String color,
+                                           @RequestParam(value = "color", required = false) List<String> color,
                                            @RequestParam(value = "quantity", required = false) Integer quantity,
                                            @RequestParam(value = "price", required = false) Integer price,
                                            @RequestParam(value = "category", required = false) Category category,
@@ -115,7 +115,7 @@ public class ProductController {
             // Create an updated Product object with the provided details
             Product productToUpdate = new Product();
             productToUpdate.setTitle(title != null ? title : existingProduct.getTitle());
-            productToUpdate.setColor(color != null ? color : existingProduct.getColor());
+            productToUpdate.setColors(color != null ? color : existingProduct.getColors());
             productToUpdate.setQuantity(quantity != null ? quantity : existingProduct.getQuantity());
             productToUpdate.setPrice(price != null ? price : existingProduct.getPrice());
             productToUpdate.setCategory(category != null ? category : existingProduct.getCategory());

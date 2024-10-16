@@ -73,7 +73,6 @@ public class FactureService implements IFactureService{
         facture.setDeliveryStatus(factureDTO.isDeliveryStatus());
         facture.setDeliveryPrice(factureDTO.getLivraisonPrice());
         facture.setQuestions(factureDTO.getQuestions());
-        System.out.println("Questions: " + facture.getQuestions());
         facture.setUserId(currentUserId);
         facture.setFactureStatus(false);
         facture.setStatus(Status.Pending);

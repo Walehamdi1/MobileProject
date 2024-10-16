@@ -22,7 +22,8 @@ public class Product {
     private Long id;
     private String title;
     private String image;
-    private String color;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> colors = new ArrayList<>();
     private int quantity;
     private int price;
     @Enumerated(EnumType.STRING)

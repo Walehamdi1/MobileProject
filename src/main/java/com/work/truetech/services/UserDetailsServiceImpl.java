@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import com.work.truetech.entity.User;
 import com.work.truetech.repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -37,7 +36,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 getAuthorities(user),
                 user.getEmail(),
                 user.getPhone(),
-                user.getId()
+                user.getId(),
+                user.getAddress(),
+                user.getCity()
         );
     }
     private Collection<? extends GrantedAuthority> getAuthorities(User user) {

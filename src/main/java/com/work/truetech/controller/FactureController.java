@@ -1,6 +1,7 @@
 package com.work.truetech.controller;
 
 import com.work.truetech.dto.FactureDTO;
+import com.work.truetech.dto.FactureListDTO;
 import com.work.truetech.dto.OptionDTO;
 import com.work.truetech.entity.Facture;
 import com.work.truetech.entity.Status;
@@ -35,13 +36,13 @@ public class FactureController {
         try {
             factureService.createFacture(factureDTO);
             response.put("status", "success");
-            response.put("message", "Facture successfully added");
+            response.put("message", "Facture ajoutée avec succès");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         } catch (Exception e) {
             response.put("status", "error");
-            response.put("message", "Failed to create facture: " + e.getMessage());
+            response.put("message", "Échec de la création de la facture: " + e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -53,7 +54,7 @@ public class FactureController {
         factureService.cancelFacture(id);
         return ResponseEntity.noContent().build();}
             catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }
     }
 
@@ -70,10 +71,10 @@ public class FactureController {
             Page<Facture> invoices = factureService.getInvoices(page, size);
             return ResponseEntity.ok(invoices);
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered while retrieving invoices.");
+            throw new ResourceAccessException("Problème de réseau rencontré lors de la récupération des factures.");
         } catch (Exception e) {
             // Rethrow the exception to be handled by GlobalExceptionHandler
-            throw new RuntimeException("Failed to retrieve invoices: " + e.getMessage(), e);
+            throw new RuntimeException("Échec de la récupération des factures: " + e.getMessage(), e);
         }
     }
 
@@ -84,10 +85,18 @@ public class FactureController {
         return ResponseEntity.ok().body(Collections.singletonMap("totalCount", count));
     }
 
+
     @GetMapping("/item/{id}")
-    public List<OptionDTO> getFactureDetails(@PathVariable Long id) {
-        return factureService.getFactureById(id);
+    public ResponseEntity<Map<String, List<?>>> getFactureDetails(@PathVariable Long id) {
+        try {
+            Map<String, List<?>> factureDetails = factureService.getFactureById(id);
+            return ResponseEntity.ok(factureDetails);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("error", List.of(e.getMessage())));
+        }
     }
+
 
     @GetMapping("/total-sum")
     public ResponseEntity<?> getTotalSumOfAllFactures() {
@@ -125,12 +134,30 @@ public class FactureController {
         try {
             Status newStatus = Status.valueOf(newStatusString);
             factureService.updateFactureStatus(id, newStatus);
-            response.put("message", "Status updated successfully");
+            response.put("message", "Statut mis à jour avec succès");
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            response.put("error", "Invalid status value");
+            response.put("error", "Valeur d'état non valide");
             return ResponseEntity.badRequest().body(response);
         }
     }
 
+    @GetMapping("/fetch")
+    public ResponseEntity<Page<FactureListDTO>> getPaginatedFacturesWithUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            Page<FactureListDTO> paginatedFactures = factureService.getAllFacturesWithUsers(page, size);
+            return ResponseEntity.ok(paginatedFactures);
+        } catch (ResourceAccessException ex) {
+            throw new ResourceAccessException("Network issue encountered while retrieving invoices.");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve invoices: " + e.getMessage(), e);
+        }
+    }
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteFacture() {
+        factureService.deleteFacture();
+        return ResponseEntity.noContent().build();
+    }
 }

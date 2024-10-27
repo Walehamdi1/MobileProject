@@ -1,4 +1,4 @@
-package com.work.truetech.config;// File: JwtTokenExpiredException.java
+package com.work.truetech.config;
 
 public class JwtTokenExpiredException extends RuntimeException {
 

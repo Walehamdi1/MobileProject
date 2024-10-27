@@ -1,10 +1,15 @@
 package com.work.truetech.controller;
 
+import com.work.truetech.dto.PasswordChangeRequest;
 import com.work.truetech.entity.Facture;
+import com.work.truetech.repository.UserRepository;
 import com.work.truetech.services.IFactureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.work.truetech.entity.User;
 import com.work.truetech.services.IUserService;
@@ -13,14 +18,20 @@ import org.springframework.web.client.ResourceAccessException;
 import java.util.*;
 
 @RestController
-@RequestMapping("/admin")
+//@RequestMapping("/admin")
 public class UserController {
     @Autowired
     IUserService userService;
     @Autowired
     IFactureService factureService;
 
-    @PostMapping("/add-user")
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @PostMapping("/admin/add-user")
     @ResponseBody
     public ResponseEntity<User> createUser(@RequestBody User user) {
 
@@ -33,7 +44,7 @@ public class UserController {
 
     }
 
-    @GetMapping("/find-all-users")
+    @GetMapping("/admin/find-all-users")
     @ResponseBody
     public List<User> getUsers() {
         try {
@@ -46,7 +57,7 @@ public class UserController {
 
 
 
-    @GetMapping("/find-user/{userId}")
+    @GetMapping("/admin/find-user/{userId}")
     @ResponseBody
     public User getUserById(@PathVariable("userId") long userId) {
         try {
@@ -57,18 +68,18 @@ public class UserController {
         }
     }
 
-    @PutMapping("/update-user/{id}")
+    @PutMapping("/api/update-profil")
     @ResponseBody
-    public ResponseEntity<?> updateUser(@PathVariable("id") Long userId, @RequestBody User updatedUser) {
+    public ResponseEntity<?> updateUser(@RequestBody User updatedUser) {
         try {
-            return userService.updateUser(userId, updatedUser);
+            return userService.updateProfil(updatedUser);
         } catch (ResourceAccessException ex){
             throw new ResourceAccessException("Network issue encountered.");
         }
     }
 
 
-    @DeleteMapping("/delete-user/{userId}")
+    @DeleteMapping("/admin/delete-user/{userId}")
     @ResponseBody
     public void deleteUser(@PathVariable("userId") Long userId) {
 
@@ -79,34 +90,34 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{id}/validity")
+    @PutMapping("/admin/{id}/validity")
     public ResponseEntity<?> toggleUserValidity(@PathVariable Long id) {
         try {
             User updatedUser = userService.toggleUserValidity(id);
             Map<String, String> response = new HashMap<>();
-            response.put("message", "User is now " + (updatedUser.isValid() ? "valid" : "invalid"));
+            response.put("message", "User est " + (updatedUser.isValid() ? "valid" : "invalid"));
             response.put("userId", String.valueOf(updatedUser.getId()));
             return ResponseEntity.ok(response);
         }  catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }  catch (Exception e) {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
-    @GetMapping("/find-all-factures")
+    @GetMapping("/admin/find-all-factures")
     @ResponseBody
     public List<Facture> getFactures() {
         try {
             List<Facture> listFacture = factureService.retrieveAllFacture();
             return listFacture;
         } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }
     }
 
-    @GetMapping("/count")
+    @GetMapping("/admin/count")
     public ResponseEntity<?> getUserCount() {
         try {
             long count = userService.countAllUsers();
@@ -115,8 +126,42 @@ public class UserController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             // Return an error message as a JSON object
-            Map<String, String> errorResponse = Collections.singletonMap("error", "Error retrieving user count: " + e.getMessage());
+            Map<String, String> errorResponse = Collections.singletonMap("error", "Erreur lors de la récupération du nombre d'utilisateurs: " + e.getMessage());
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
+    @PutMapping("/api/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest passwordChangeRequest) {
+        // Retrieve the Authentication object from the SecurityContextHolder
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Extract the username (or UserDetails) from Authentication
+        String username = authentication.getName();
+
+        // Find the user by username
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Utilisateur non trouvé");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        // Check if the old password matches the current password
+        if (!passwordEncoder.matches(passwordChangeRequest.getOldPassword(), user.getPassword())) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "L'ancien mot de passe est incorrect");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        // Encode and set the new password
+        user.setPassword(passwordEncoder.encode(passwordChangeRequest.getNewPassword()));
+
+        // Save the updated user
+        userRepository.save(user);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Mot de passe modifié avec succès");
+        return ResponseEntity.ok(response);
+    }
+
 }

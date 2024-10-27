@@ -61,7 +61,7 @@ public class OptionController {
             Option createdOption = optionService.createOption(option,modelId ,file);
             return new ResponseEntity<>(createdOption, HttpStatus.CREATED);
         }  catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }  catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -75,7 +75,7 @@ public class OptionController {
             List<Option> listOption = optionService.retrieveOptions();
             return listOption;
         } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }
     }
 
@@ -86,10 +86,10 @@ public class OptionController {
             List<Option> listOption = optionService.retrieveOptionByModel(modelId);
             return ResponseEntity.ok(listOption);
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered while retrieving options.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         } catch (Exception e) {
             // Rethrow the exception to be handled by GlobalExceptionHandler
-            throw new RuntimeException("Failed to retrieve options: " + e.getMessage(), e);
+            throw new RuntimeException("Impossible de récupérer les options: " + e.getMessage(), e);
         }
     }
 
@@ -101,10 +101,10 @@ public class OptionController {
             Option option = optionService.getOptionById(optionId);
             return ResponseEntity.ok(option);
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered while retrieving option.");
+            throw new ResourceAccessException("Problème de réseau rencontré lors de la récupération de l'option.");
         } catch (Exception e) {
             // Rethrow the exception to be handled by GlobalExceptionHandler
-            throw new RuntimeException("Failed to retrieve option: " + e.getMessage(), e);
+            throw new RuntimeException("Impossible de récupérer l'option: " + e.getMessage(), e);
         }
     }
 
@@ -150,7 +150,7 @@ public class OptionController {
             Option updatedOption = optionService.updateOption(optionId, optionToUpdate, file);
             return new ResponseEntity<>(updatedOption, HttpStatus.OK);
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         } catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -163,7 +163,7 @@ public class OptionController {
         try {
             optionService.deleteOption(optionid);
         } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }
     }
     @GetMapping("/api/option/most-bought-options")
@@ -172,10 +172,10 @@ public class OptionController {
             List<Map<String, Long>> totalOptionsBought = optionService.getTotalOptionsBoughtByPhone();
             return ResponseEntity.ok(totalOptionsBought);
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered while retrieving total options bought.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         } catch (Exception e) {
             // Rethrow the exception to be handled by GlobalExceptionHandler
-            throw new RuntimeException("Failed to retrieve total options bought: " + e.getMessage(), e);
+            throw new RuntimeException("Impossible de récupérer le total des options achetées: " + e.getMessage(), e);
         }
     }
 }

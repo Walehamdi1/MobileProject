@@ -21,5 +21,8 @@ public class ResourceHandlerConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler("/api/video/**")
                 .addResourceLocations("file:"+upload+"/video/").setCachePeriod(0);
+
+        registry.addResourceHandler("/api/products/**")
+                .addResourceLocations("file:"+upload+"/products/").setCachePeriod(0);
     }
 }

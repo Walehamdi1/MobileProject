@@ -166,7 +166,7 @@ public class ModelService implements IModelService {
                     Files.deleteIfExists(filePath);
                 } catch (IOException e) {
                     // Log an error if the file deletion fails
-                    System.err.println("Could not delete file: " + filePath);
+                    System.err.println("Impossible de supprimer le fichier: " + filePath);
                     e.printStackTrace();
                 }
             }
@@ -174,7 +174,7 @@ public class ModelService implements IModelService {
             // Delete the model from the database
             modelRepository.delete(model);
         } else {
-            throw new RuntimeException("Model not found with id: " + id);
+            throw new RuntimeException("Modèle non trouvé avec l'ID:" + id);
         }
     }
 

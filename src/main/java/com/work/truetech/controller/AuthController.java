@@ -3,7 +3,11 @@ package com.work.truetech.controller;
 import com.work.truetech.config.JwtTokenExpiredException;
 import com.work.truetech.config.JwtTokenInvalidException;
 import com.work.truetech.config.JwtUtil;
+import com.work.truetech.entity.PasswordResetCode;
+import com.work.truetech.repository.PasswordResetCodeRepository;
 import com.work.truetech.services.CustomUserDetails;
+import com.work.truetech.services.MailService;
+import com.work.truetech.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +28,10 @@ import com.work.truetech.repository.UserRepository;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -39,12 +45,19 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PasswordResetCodeRepository passwordResetCodeRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    MailService mailService;
+    @Autowired
+    UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
@@ -81,23 +94,28 @@ public class AuthController {
         Map<String, String> response = new HashMap<>();
         response.put("token", jwt);
         response.put("refreshToken", refreshToken);
-
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         if (userRepository.findByUsername(user.getUsername()) != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username is already taken");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Le nom d'utilisateur est déjà pris");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(Role.USER);
-        user.setValid(true);
+
+        if (user.getRole() == Role.USER) {
+            user.setValid(true);
+        }
 
         userRepository.save(user);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Utilisateur enregistré avec succès");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/refresh-token")
@@ -106,13 +124,17 @@ public class AuthController {
 
         // Check if the refresh token is present in the request
         if (refreshToken == null || refreshToken.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Refresh token is missing");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Le jeton d'actualisation est manquant");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
         try {
             // Validate the refresh token
             if (!jwtUtil.validateRefreshToken(refreshToken)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Jeton d'actualisation non valide");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
             // Extract username from the refresh token
@@ -121,7 +143,9 @@ public class AuthController {
             // Retrieve user details
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             if (userDetails == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Utilisateur non trouvé");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
             // Generate a new access token
@@ -134,16 +158,37 @@ public class AuthController {
             return ResponseEntity.ok(response);
         } catch (JwtTokenExpiredException e) {
             // Handle token expiration specifically
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token has expired");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Le jeton d'actualisation a expiré");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (JwtTokenInvalidException e) {
             // Handle invalid token exceptions
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Jeton d'actualisation non valide");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (Exception e) {
             // Log the exception for debugging
             e.printStackTrace();
             // Return a generic error message
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the refresh token");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Une erreur s'est produite lors du traitement du jeton d'actualisation");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> requestResetCode(@RequestBody Map<String, String> request) {
+        return userService.requestResetCode(request);
+    }
+
+    @PostMapping("/verify-reset-code")
+    public ResponseEntity<Map<String, String>> verifyResetCode(@RequestBody Map<String, String> request) {
+        return userService.verifyResetCode(request);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody Map<String, String> request) {
+        return userService.resetPassword(request);
     }
 
 }

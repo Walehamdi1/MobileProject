@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-//@RequestMapping("/api/phone")
-//@CrossOrigin(origins="http://localhost:4200")
 public class PhoneController {
 
     @Autowired
@@ -49,7 +47,7 @@ public class PhoneController {
             Phone createdPhone = iPhoneService.createPhone(phone, file);
             return new ResponseEntity<>(createdPhone, HttpStatus.CREATED);
         }  catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }  catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -62,10 +60,10 @@ public class PhoneController {
             List<Phone> listPhone = iPhoneService.retrievePhones();
             return listPhone;
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered while retrieving phones.");
+            throw new ResourceAccessException("Problème de réseau rencontré lors de la récupération des téléphones.");
         } catch (Exception e) {
             // Rethrow the exception to be handled by GlobalExceptionHandler
-            throw new RuntimeException("Failed to retrieve phones: " + e.getMessage(), e);
+            throw new RuntimeException("Impossible de récupérer les téléphones: " + e.getMessage(), e);
         }
     }
 
@@ -76,7 +74,7 @@ public class PhoneController {
         try {
             return iPhoneService.retrievePhoneById(phoneId);
         } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }
     }
 
@@ -110,7 +108,7 @@ public class PhoneController {
             Phone updatedPhone = iPhoneService.updatePhone(phoneId, phoneToUpdate, file);
             return new ResponseEntity<>(updatedPhone, HttpStatus.OK);
         } catch (ResourceAccessException ex) {
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         } catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -123,7 +121,7 @@ public class PhoneController {
         try {
             iPhoneService.deletePhone(phoneId);
         } catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }
     }
 

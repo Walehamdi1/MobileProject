@@ -4,9 +4,11 @@ import com.work.truetech.entity.FactureOption;
 import com.work.truetech.entity.Model;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface FactureOptionRepository extends JpaRepository<FactureOption, Long> {
     @Query("SELECT o.model.phone.title AS phoneTitle, SUM(fo.quantity) AS totalQuantity " +
             "FROM FactureOption fo " +

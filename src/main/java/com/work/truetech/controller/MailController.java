@@ -27,7 +27,7 @@ public class MailController {
             response.put("message", "Email envoyé avec succès !");
             return ResponseEntity.ok(response);
         }  catch (ResourceAccessException ex){
-            throw new ResourceAccessException("Network issue encountered.");
+            throw new ResourceAccessException("Problème de réseau rencontré.");
         }  catch (MessagingException e) {
             e.printStackTrace();
             response.put("status", "erreur");

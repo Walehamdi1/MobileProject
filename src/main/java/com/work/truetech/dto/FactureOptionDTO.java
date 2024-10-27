@@ -12,4 +12,7 @@ import lombok.Setter;
 public class FactureOptionDTO {
     private Long optionId;
     private int quantity;
+
+    public FactureOptionDTO(Long id) {
+    }
 }

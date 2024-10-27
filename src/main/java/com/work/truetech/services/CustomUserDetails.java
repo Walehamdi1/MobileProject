@@ -17,14 +17,23 @@ public class CustomUserDetails implements UserDetails {
     @Getter
     private int phone;
 
-    public CustomUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities, String email, int phone,Long id) {
+    @Getter
+    private String address;
+
+    @Getter
+    private String city;
+
+    public CustomUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities,
+                             String email, int phone, Long id, String address, String city) {
         this.username = username;
         this.password = password;
         this.authorities = authorities;
         this.email = email;
         this.phone = phone;
         this.id = id;
-    }
+        this.address = address;
+        this.city= city;
+        }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -14,4 +14,5 @@ public interface IFactureService {
     long countAllFactures();
     Facture toggleFactureStatus(Long factureId);
     Facture updateFactureStatus(Long factureId, Status newStatus);
+    void deleteFacture();
 }

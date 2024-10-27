@@ -8,22 +8,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import com.work.truetech.entity.Phone;
 import com.work.truetech.repository.PhoneRepository;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 
@@ -146,7 +140,7 @@ public class PhoneService implements IPhoneService {
                 if (imageFile.exists()) {
                     if (!imageFile.delete()) {
                         // Log or handle if the file deletion fails
-                        System.err.println("Failed to delete the image file: " + imageFile.getPath());
+                        System.err.println("Impossible de supprimer le fichier image: " + imageFile.getPath());
                     }
                 }
             }

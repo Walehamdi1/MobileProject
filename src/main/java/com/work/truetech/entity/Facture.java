@@ -24,6 +24,8 @@ public class Facture {
     private String fullName;
     private int phone;
     private String address;
+    @ElementCollection
+    private List<String> questions = new ArrayList<>();
     private boolean reparationStatus;
     private boolean factureStatus;
     private boolean deliveryStatus;
@@ -44,4 +46,8 @@ public class Facture {
     @OneToMany(mappedBy = "facture", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<FactureOption> factureOptions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "facture", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<FactureProduct> factureProducts = new ArrayList<>();
 }

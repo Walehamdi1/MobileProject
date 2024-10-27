@@ -23,6 +23,9 @@
         private String username;
         private String email;
         private String password;
+        private String address;
+        private String city;
+        @Enumerated(EnumType.STRING)
         private Role role;
         private int phone;
         private boolean valid;
@@ -30,5 +33,9 @@
         @JsonIgnore
         @OneToMany(cascade = CascadeType.ALL,mappedBy="user")
         private Set<Phone> phones = new HashSet<>();
+
+        @JsonIgnore
+        @OneToMany(cascade = CascadeType.ALL,mappedBy="user")
+        private Set<Product> products = new HashSet<>();
 
     }

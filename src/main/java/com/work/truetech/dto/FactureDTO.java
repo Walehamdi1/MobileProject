@@ -12,11 +12,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FactureDTO {
-    private String fullName;
-    private int phone;
-    private String address;
     private boolean reparationStatus;
     private boolean deliveryStatus;
     private double livraisonPrice;
+    private List<String> questions;
     private List<FactureOptionDTO> options;
+    private List<FactureProductDto> products;
 }

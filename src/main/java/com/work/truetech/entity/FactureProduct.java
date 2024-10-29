@@ -17,7 +17,7 @@ public class FactureProduct {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private int quantity;
-
+    private String color;
     @ManyToOne
     @JoinColumn(name = "facture_id", nullable = false)
     @JsonIgnore

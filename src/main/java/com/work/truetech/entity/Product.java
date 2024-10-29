@@ -28,6 +28,7 @@ public class Product {
     private int price;
     @Enumerated(EnumType.STRING)
     private SousCategorie sousCategorie;
+    private String description;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnore

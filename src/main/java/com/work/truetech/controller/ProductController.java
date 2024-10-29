@@ -36,6 +36,7 @@ public class ProductController {
                                            @RequestParam("quantity") int quantity,
                                            @RequestParam("price") int price,
                                            @RequestParam("sous_categorie") SousCategorie sousCategorie,
+                                           @RequestParam("description") String description,
                                            @RequestParam("file") MultipartFile file) {
         try {
             // Check if a product with the same title exists
@@ -52,6 +53,7 @@ public class ProductController {
             product.setQuantity(quantity);
             product.setPrice(price);
             product.setSousCategorie(sousCategorie);
+            product.setDescription(description);
 
             Product createdProduct = productService.createProduct(product,categoryId, file);
             return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
@@ -94,6 +96,7 @@ public class ProductController {
                                            @RequestParam(value = "price", required = false) Integer price,
                                            @RequestParam(value = "category", required = false) Category category,
                                            @RequestParam(value = "sous_categorie", required = false) SousCategorie sousCategorie,
+                                           @RequestParam(value = "description", required = false) String description,
                                            @RequestParam(value = "file", required = false) MultipartFile file) {
 
         // Retrieve the existing product by ID
@@ -120,6 +123,7 @@ public class ProductController {
             productToUpdate.setPrice(price != null ? price : existingProduct.getPrice());
             productToUpdate.setCategory(category != null ? category : existingProduct.getCategory());
             productToUpdate.setSousCategorie(sousCategorie != null ? sousCategorie : existingProduct.getSousCategorie());
+            productToUpdate.setDescription(description != null ? description : existingProduct.getDescription());
 
             // Call the service to update the product
             Product updatedProduct = productService.updateProduct(productId, productToUpdate, file);

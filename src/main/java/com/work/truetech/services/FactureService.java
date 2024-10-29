@@ -141,6 +141,7 @@ public class FactureService implements IFactureService{
                 factureProduct.setFacture(facture);
                 factureProduct.setProduct(product);
                 factureProduct.setQuantity(productDTO.getQuantity());
+                factureProduct.setColor(productDTO.getColor());
                 factureProductRepository.save(factureProduct);
 
                 double productCost = product.getPrice() * productDTO.getQuantity();
@@ -203,6 +204,7 @@ public class FactureService implements IFactureService{
             return new FactureListDTO(
                     facture.getId(),
                     user.getUsername(),
+                    facture.getCreationDate(),
                     (long) user.getPhone(),
                     user.getAddress(),
                     facture.getCode(),
@@ -218,7 +220,7 @@ public class FactureService implements IFactureService{
                             .map(option -> new FactureOptionDTO(option.getId(), option.getQuantity()))
                             .toList(),
                     facture.getFactureProducts().stream()
-                            .map(product -> new FactureProductDto(product.getId(), product.getQuantity()))
+                            .map(product -> new FactureProductDto(product.getId(), product.getQuantity(),product.getColor()))
                             .toList()
             );
         });

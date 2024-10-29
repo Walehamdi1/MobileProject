@@ -12,7 +12,7 @@ import lombok.Setter;
 public class FactureProductDto {
     private Long productId;
     private int quantity;
-
+    private String color;
     public FactureProductDto(Long id) {
     }
 }

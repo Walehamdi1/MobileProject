@@ -105,6 +105,7 @@ public class ProductService implements IProductService {
             existingProduct.setCategory(updatedProduct.getCategory());
             existingProduct.setPrice(updatedProduct.getPrice());
             existingProduct.setSousCategorie(updatedProduct.getSousCategorie());
+            existingProduct.setDescription(updatedProduct.getDescription());
 
             // Check if a new file is provided
             if (file != null && !file.isEmpty()) {

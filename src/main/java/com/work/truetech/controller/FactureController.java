@@ -5,11 +5,17 @@ import com.work.truetech.dto.FactureListDTO;
 import com.work.truetech.dto.OptionDTO;
 import com.work.truetech.entity.Facture;
 import com.work.truetech.entity.Status;
+import com.work.truetech.entity.User;
 import com.work.truetech.repository.FactureRepository;
+import com.work.truetech.repository.UserRepository;
 import com.work.truetech.services.FactureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResourceAccessException;
 
@@ -29,6 +35,9 @@ public class FactureController {
 
     @Autowired
     private FactureRepository factureRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @PostMapping("/create")
     public ResponseEntity<Map<String,String>> createFacture(@RequestBody FactureDTO factureDTO) {
@@ -160,4 +169,18 @@ public class FactureController {
         factureService.deleteFacture();
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/history")
+    public List<Facture> getFacturesForCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long currentUserId = null;
+
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            User user = userRepository.findByUsername(userDetails.getUsername());
+            currentUserId = user.getId();
+        }
+
+        return factureService.getFacturesByUserId(currentUserId);
+    }
+
 }

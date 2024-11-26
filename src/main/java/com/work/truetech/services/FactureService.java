@@ -388,4 +388,8 @@ public class FactureService implements IFactureService{
         factureRepository.deleteAll();
     }
 
+    @Override
+    public List<Facture> getFacturesByUserId(Long userId) {
+        return factureRepository.findByUserId(userId);
+    }
 }

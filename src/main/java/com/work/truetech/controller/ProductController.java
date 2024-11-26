@@ -35,7 +35,7 @@ public class ProductController {
                                            @RequestParam("color") List<String> color,
                                            @RequestParam("quantity") int quantity,
                                            @RequestParam("price") int price,
-                                           @RequestParam("sous_categorie") SousCategorie sousCategorie,
+                                           //@RequestParam("sous_categorie") SousCategorie sousCategorie,
                                            @RequestParam("description") String description,
                                            @RequestParam("file") MultipartFile file) {
         try {
@@ -52,7 +52,7 @@ public class ProductController {
             product.setColors(color);
             product.setQuantity(quantity);
             product.setPrice(price);
-            product.setSousCategorie(sousCategorie);
+            //product.setSousCategorie(sousCategorie);
             product.setDescription(description);
 
             Product createdProduct = productService.createProduct(product,categoryId, file);
@@ -95,7 +95,7 @@ public class ProductController {
                                            @RequestParam(value = "quantity", required = false) Integer quantity,
                                            @RequestParam(value = "price", required = false) Integer price,
                                            @RequestParam(value = "category", required = false) Category category,
-                                           @RequestParam(value = "sous_categorie", required = false) SousCategorie sousCategorie,
+                                           //@RequestParam(value = "sous_categorie", required = false) SousCategorie sousCategorie,
                                            @RequestParam(value = "description", required = false) String description,
                                            @RequestParam(value = "file", required = false) MultipartFile file) {
 
@@ -122,7 +122,7 @@ public class ProductController {
             productToUpdate.setQuantity(quantity != null ? quantity : existingProduct.getQuantity());
             productToUpdate.setPrice(price != null ? price : existingProduct.getPrice());
             productToUpdate.setCategory(category != null ? category : existingProduct.getCategory());
-            productToUpdate.setSousCategorie(sousCategorie != null ? sousCategorie : existingProduct.getSousCategorie());
+            //productToUpdate.setSousCategorie(sousCategorie != null ? sousCategorie : existingProduct.getSousCategorie());
             productToUpdate.setDescription(description != null ? description : existingProduct.getDescription());
 
             // Call the service to update the product
@@ -154,10 +154,11 @@ public class ProductController {
         return productService.getProductsByCategory(category);
     }
 
+    /*
     @PostMapping("/api/product/sous_category/")
     public ResponseEntity<List<Product>> getProductsBySousCategorie(@RequestBody SousCategorieRequest request) {
         SousCategorie sousCategorie = request.getSousCategorie();
         List<Product> products = productService.getProductBySousCategorie(sousCategorie);
         return ResponseEntity.ok(products);
-    }
+    }*/
 }

@@ -104,7 +104,7 @@ public class ProductService implements IProductService {
             existingProduct.setQuantity(updatedProduct.getQuantity());
             existingProduct.setCategory(updatedProduct.getCategory());
             existingProduct.setPrice(updatedProduct.getPrice());
-            existingProduct.setSousCategorie(updatedProduct.getSousCategorie());
+            //existingProduct.setSousCategorie(updatedProduct.getSousCategorie());
             existingProduct.setDescription(updatedProduct.getDescription());
 
             // Check if a new file is provided
@@ -145,10 +145,11 @@ public class ProductService implements IProductService {
             return productRepository.findByCategory(category);
     }
 
+    /*
     @Override
     public List<Product> getProductBySousCategorie(SousCategorie sousCategorie) {
         return productRepository.findBySousCategorie(sousCategorie);
-    }
+    }*/
 
     @Override
     public void deleteProduct(Long id) {

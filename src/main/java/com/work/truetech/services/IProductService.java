@@ -16,6 +16,6 @@ public interface IProductService {
     Product updateProduct(Long phoneId, Product updatedProduct, MultipartFile file) throws IOException;
     void deleteProduct(Long id);
     Product retrieveProductById(Long id);
-     List<Product> getProductsByCategory(Category category);
-    List<Product> getProductBySousCategorie(SousCategorie sousCategorie);
+    List<Product> getProductsByCategory(Category category);
+    //List<Product> getProductBySousCategorie(SousCategorie sousCategorie);
 }

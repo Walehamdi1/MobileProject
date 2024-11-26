@@ -171,16 +171,22 @@ public class FactureController {
     }
     @GetMapping("/history")
     public List<Facture> getFacturesForCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long currentUserId = null;
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Long currentUserId = null;
 
-        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            User user = userRepository.findByUsername(userDetails.getUsername());
-            currentUserId = user.getId();
-        }
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                User user = userRepository.findByUsername(userDetails.getUsername());
+                currentUserId = user.getId();
+            }
 
-        return factureService.getFacturesByUserId(currentUserId);
+            return factureService.getFacturesByUserId(currentUserId);
+        } catch (ResourceAccessException ex) {
+        throw new ResourceAccessException("Network issue encountered while retrieving invoices.");
+    } catch (Exception e) {
+        throw new RuntimeException("Failed to retrieve invoices: " + e.getMessage(), e);
+    }
     }
 
 }

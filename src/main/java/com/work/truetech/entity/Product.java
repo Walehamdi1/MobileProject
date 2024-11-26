@@ -26,8 +26,6 @@ public class Product {
     private List<String> colors = new ArrayList<>();
     private int quantity;
     private int price;
-    //@Enumerated(EnumType.STRING)
-    //private SousCategorie sousCategorie;
     private String description;
 
     @ManyToOne(fetch = FetchType.EAGER)

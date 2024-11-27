@@ -8,6 +8,7 @@ import com.work.truetech.repository.PasswordResetCodeRepository;
 import com.work.truetech.services.CustomUserDetails;
 import com.work.truetech.services.MailService;
 import com.work.truetech.services.UserService;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -104,15 +105,18 @@ public class AuthController {
             response.put("message", "Le nom d'utilisateur est déjà pris");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
+        try {
+            mailService.sendWelcomeEmail(user.getEmail(), user.getUsername(), user.getPassword());
+        } catch (MessagingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Échec de l'envoi de l'email.");
+        }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         if (user.getRole() == Role.USER) {
             user.setValid(true);
         }
-
         userRepository.save(user);
-
         Map<String, String> response = new HashMap<>();
         response.put("message", "Utilisateur enregistré avec succès");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -122,54 +126,40 @@ public class AuthController {
     public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
         String refreshToken = request.get("refreshToken");
 
-        // Check if the refresh token is present in the request
         if (refreshToken == null || refreshToken.isEmpty()) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Le jeton d'actualisation est manquant");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-
         try {
-            // Validate the refresh token
             if (!jwtUtil.validateRefreshToken(refreshToken)) {
                 Map<String, String> response = new HashMap<>();
                 response.put("message", "Jeton d'actualisation non valide");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
-
-            // Extract username from the refresh token
             String username = jwtUtil.extractUsernameFromRefreshToken(refreshToken);
-
-            // Retrieve user details
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             if (userDetails == null) {
                 Map<String, String> response = new HashMap<>();
                 response.put("message", "Utilisateur non trouvé");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
-
-            // Generate a new access token
             String newAccessToken = jwtUtil.generateToken(userDetails);
 
-            // Return the new access token in the response
             Map<String, String> response = new HashMap<>();
             response.put("token", newAccessToken);
 
             return ResponseEntity.ok(response);
         } catch (JwtTokenExpiredException e) {
-            // Handle token expiration specifically
             Map<String, String> response = new HashMap<>();
             response.put("message", "Le jeton d'actualisation a expiré");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (JwtTokenInvalidException e) {
-            // Handle invalid token exceptions
             Map<String, String> response = new HashMap<>();
             response.put("message", "Jeton d'actualisation non valide");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (Exception e) {
-            // Log the exception for debugging
             e.printStackTrace();
-            // Return a generic error message
             Map<String, String> response = new HashMap<>();
             response.put("message", "Une erreur s'est produite lors du traitement du jeton d'actualisation");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

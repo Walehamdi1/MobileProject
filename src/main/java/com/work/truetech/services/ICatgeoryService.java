@@ -11,8 +11,6 @@ public interface ICatgeoryService {
     Category createCategory(Category category);
     List<Category> retrieveCategory();
     Category getCategoryById(Long categoryId);
-
     Category updateCategory(Long categoryId, Category updatedCategory);
-
     void deleteCategory(Long id);
 }

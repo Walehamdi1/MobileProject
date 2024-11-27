@@ -1,12 +1,11 @@
 package com.work.truetech.controller;
 
-import com.work.truetech.dto.SousCategorieRequest;
 import com.work.truetech.entity.Category;
 import com.work.truetech.entity.Product;
-import com.work.truetech.entity.SousCategorie;
 import com.work.truetech.services.IProductService;
 import com.work.truetech.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,24 +34,20 @@ public class ProductController {
                                            @RequestParam("color") List<String> color,
                                            @RequestParam("quantity") int quantity,
                                            @RequestParam("price") int price,
-                                           //@RequestParam("sous_categorie") SousCategorie sousCategorie,
                                            @RequestParam("description") String description,
                                            @RequestParam("file") MultipartFile file) {
         try {
-            // Check if a product with the same title exists
             if (productRepository.findByTitle(title) != null) {
                 Map<String, String> response = new HashMap<>();
                 response.put("message", "Le nom du produit existe déjà, veuillez en choisir un autre.");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
-            // Create a new product
             Product product = new Product();
             product.setTitle(title);
             product.setColors(color);
             product.setQuantity(quantity);
             product.setPrice(price);
-            //product.setSousCategorie(sousCategorie);
             product.setDescription(description);
 
             Product createdProduct = productService.createProduct(product,categoryId, file);
@@ -64,18 +59,23 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/api/product/find-all-products")
+    @GetMapping("/api/products")
     @ResponseBody
-    public List<?> getProducts() {
+    public Page<Product> getProducts(
+            @RequestParam(required = false, defaultValue = "all") String filter,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "") String search,
+            @RequestParam(defaultValue = "10") int size) {
         try {
-            List<Product> listProduct = productService.retrieveProducts();
-            return listProduct;
+            return productService.retrieveProductFilter(filter, page, search, size);
         } catch (ResourceAccessException ex) {
             throw new ResourceAccessException("Problème de réseau rencontré.");
         } catch (Exception e) {
             throw new RuntimeException("Impossible de récupérer les produits: " + e.getMessage(), e);
         }
     }
+
+
 
     @GetMapping("/api/product/find-product/{productId}")
     @ResponseBody
@@ -95,11 +95,9 @@ public class ProductController {
                                            @RequestParam(value = "quantity", required = false) Integer quantity,
                                            @RequestParam(value = "price", required = false) Integer price,
                                            @RequestParam(value = "category", required = false) Category category,
-                                           //@RequestParam(value = "sous_categorie", required = false) SousCategorie sousCategorie,
                                            @RequestParam(value = "description", required = false) String description,
                                            @RequestParam(value = "file", required = false) MultipartFile file) {
 
-        // Retrieve the existing product by ID
         Optional<Product> existingProductOpt = productRepository.findById(productId);
         if (!existingProductOpt.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produit avec id " + productId + " non trouvé");
@@ -107,7 +105,6 @@ public class ProductController {
 
         Product existingProduct = existingProductOpt.get();
 
-        // Perform duplicate name check if the title is being changed
         if (title != null && !title.equals(existingProduct.getTitle()) && productRepository.findByTitle(title) != null) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Le nom du produit existe déjà, veuillez en choisir un autre.");
@@ -115,17 +112,14 @@ public class ProductController {
         }
 
         try {
-            // Create an updated Product object with the provided details
             Product productToUpdate = new Product();
             productToUpdate.setTitle(title != null ? title : existingProduct.getTitle());
             productToUpdate.setColors(color != null ? color : existingProduct.getColors());
             productToUpdate.setQuantity(quantity != null ? quantity : existingProduct.getQuantity());
             productToUpdate.setPrice(price != null ? price : existingProduct.getPrice());
             productToUpdate.setCategory(category != null ? category : existingProduct.getCategory());
-            //productToUpdate.setSousCategorie(sousCategorie != null ? sousCategorie : existingProduct.getSousCategorie());
             productToUpdate.setDescription(description != null ? description : existingProduct.getDescription());
 
-            // Call the service to update the product
             Product updatedProduct = productService.updateProduct(productId, productToUpdate, file);
             return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
         } catch (ResourceAccessException ex) {
@@ -147,18 +141,10 @@ public class ProductController {
 
     @GetMapping("/api/product/category/{categoryId}")
     public List<Product> getProductsByCategory(@PathVariable Long categoryId) {
-        // You need to fetch the category by its ID first
         Category category = new Category();
-        category.setId(categoryId); // Set the ID of the category, you may need to fetch it from the database
+        category.setId(categoryId);
 
         return productService.getProductsByCategory(category);
     }
 
-    /*
-    @PostMapping("/api/product/sous_category/")
-    public ResponseEntity<List<Product>> getProductsBySousCategorie(@RequestBody SousCategorieRequest request) {
-        SousCategorie sousCategorie = request.getSousCategorie();
-        List<Product> products = productService.getProductBySousCategorie(sousCategorie);
-        return ResponseEntity.ok(products);
-    }*/
 }

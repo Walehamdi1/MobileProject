@@ -20,7 +20,6 @@ public class CatgeoryService implements ICatgeoryService{
         return categoryRepository.save(category);
     }
 
-
     @Override
     public List<Category> retrieveCategory() {
         return categoryRepository.findAll();

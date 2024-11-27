@@ -18,7 +18,6 @@ import org.springframework.web.client.ResourceAccessException;
 import java.util.*;
 
 @RestController
-//@RequestMapping("/admin")
 public class UserController {
     @Autowired
     IUserService userService;
@@ -34,14 +33,12 @@ public class UserController {
     @PostMapping("/admin/add-user")
     @ResponseBody
     public ResponseEntity<User> createUser(@RequestBody User user) {
-
         try {
             User createdUser = userService.createUser(user);
             return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
         } catch (ResourceAccessException ex){
             throw new ResourceAccessException("Network issue encountered.");
         }
-
     }
 
     @GetMapping("/admin/find-all-users")
@@ -54,8 +51,6 @@ public class UserController {
             throw new ResourceAccessException("Network issue encountered.");
         }
     }
-
-
 
     @GetMapping("/admin/find-user/{userId}")
     @ResponseBody
@@ -78,11 +73,9 @@ public class UserController {
         }
     }
 
-
     @DeleteMapping("/admin/delete-user/{userId}")
     @ResponseBody
     public void deleteUser(@PathVariable("userId") Long userId) {
-
         try {
             userService.deleteUser(userId);
         } catch (ResourceAccessException ex){
@@ -106,6 +99,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
+
     @GetMapping("/admin/find-all-factures")
     @ResponseBody
     public List<Facture> getFactures() {
@@ -121,24 +115,18 @@ public class UserController {
     public ResponseEntity<?> getUserCount() {
         try {
             long count = userService.countAllUsers();
-            // Return the count as a JSON object
             Map<String, Long> response = Collections.singletonMap("count", count);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            // Return an error message as a JSON object
             Map<String, String> errorResponse = Collections.singletonMap("error", "Erreur lors de la récupération du nombre d'utilisateurs: " + e.getMessage());
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
     @PutMapping("/api/change-password")
     public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest passwordChangeRequest) {
-        // Retrieve the Authentication object from the SecurityContextHolder
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        // Extract the username (or UserDetails) from Authentication
         String username = authentication.getName();
 
-        // Find the user by username
         User user = userRepository.findByUsername(username);
         if (user == null) {
             Map<String, String> response = new HashMap<>();
@@ -146,22 +134,16 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
-        // Check if the old password matches the current password
         if (!passwordEncoder.matches(passwordChangeRequest.getOldPassword(), user.getPassword())) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "L'ancien mot de passe est incorrect");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
-        // Encode and set the new password
         user.setPassword(passwordEncoder.encode(passwordChangeRequest.getNewPassword()));
-
-        // Save the updated user
         userRepository.save(user);
-
         Map<String, String> response = new HashMap<>();
         response.put("message", "Mot de passe modifié avec succès");
         return ResponseEntity.ok(response);
     }
-
 }

@@ -9,8 +9,7 @@ import java.util.List;
 public interface IPhoneService {
     Phone createPhone(Phone phone, MultipartFile file) throws IOException;
     List<Phone> retrievePhones();
-
     Phone updatePhone(Long phoneId, Phone updatedPhone, MultipartFile file) throws IOException;
-    public void deletePhone(long id);
-    public Phone retrievePhoneById(long id);
+    void deletePhone(long id);
+    Phone retrievePhoneById(long id);
 }

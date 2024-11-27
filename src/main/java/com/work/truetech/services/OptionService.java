@@ -37,15 +37,12 @@ public class OptionService implements IOptionService {
         String uploadPath = getOptionsPath();
         Optional<Model> optModel = modelRepository.findById(modelId);
 
-        // Validate that OptionType is not null and set by the client
         if (option.getOptionType() == null) {
             throw new RuntimeException("OptionType doit être spécifié (CLIENT, FOURNISSEUR ou LES DEUX).");
         }
 
-        // Save the Option entity first to generate an ID
         Option savedOption = optionRepository.save(option);
 
-        // Ensure the upload directory exists
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
@@ -54,24 +51,17 @@ public class OptionService implements IOptionService {
         if (optModel.isPresent()) {
             Model model = optModel.get();
 
-            // Check if a new file is provided
             if (file != null && !file.isEmpty()) {
-                // Generate the new filename
                 String originalFileName = file.getOriginalFilename();
                 String newFileName = savedOption.getId() + "_" + originalFileName;
 
-                // Save the new file to the server
                 fileStorageService.saveFile(file, newFileName, uploadPath);
 
-                // Update the Option entity with the new filename (not the full path)
                 savedOption.setImage(newFileName);
             }
 
-            // Associate the Option with the Model
             savedOption.setModel(model);
             model.getOptions().add(savedOption);
-
-            // Save and return the updated Option entity
             return optionRepository.save(savedOption);
         } else {
             throw new RuntimeException("Modèle non trouvé avec l'ID: " + modelId);
@@ -101,12 +91,10 @@ public class OptionService implements IOptionService {
     public Option updateOption(Long optionId, Option updatedOption, MultipartFile file) throws IOException {
         String uploadPath = getOptionsPath();
 
-        // Retrieve the existing option by ID
         Optional<Option> optionalOption = optionRepository.findById(optionId);
         if (optionalOption.isPresent()) {
             Option existingOption = optionalOption.get();
 
-            // Update only the necessary fields
             existingOption.setTitle(updatedOption.getTitle() != null ? updatedOption.getTitle() : existingOption.getTitle());
             existingOption.setClientPrice(updatedOption.getClientPrice() != null ? updatedOption.getClientPrice() : existingOption.getClientPrice());
             existingOption.setSupplierPrice(updatedOption.getSupplierPrice() != null ? updatedOption.getSupplierPrice() : existingOption.getSupplierPrice());
@@ -115,33 +103,23 @@ public class OptionService implements IOptionService {
             existingOption.setReparation(updatedOption.getReparation() != null ? updatedOption.getReparation() : existingOption.getReparation());
             existingOption.setOptionType(updatedOption.getOptionType() != null ? updatedOption.getOptionType() : existingOption.getOptionType());
 
-            // Update the optionType field if provided in the updatedOption
             if (updatedOption.getOptionType() != null) {
                 existingOption.setOptionType(updatedOption.getOptionType());
             }
-
-            // Check if a new file is provided
             if (file != null && !file.isEmpty()) {
-                // Delete the old file if it exists
                 if (existingOption.getImage() != null) {
                     File oldFile = new File(uploadPath, existingOption.getImage());
                     if (oldFile.exists()) {
                         oldFile.delete();
                     }
                 }
-
-                // Generate the new filename
                 String originalFileName = file.getOriginalFilename();
                 String newFileName = optionId + "_" + originalFileName;
 
-                // Use an asynchronous method to save the file
                 fileStorageService.saveFile(file, newFileName, uploadPath);
-
-                // Update the Option entity with the new filename (not the full path)
                 existingOption.setImage(newFileName);
             }
 
-            // Save the updated option entity
             return optionRepository.save(existingOption);
         } else {
             throw new RuntimeException("Option non trouvé avec id: " + optionId);
@@ -158,18 +136,15 @@ public class OptionService implements IOptionService {
         if (optionalOption.isPresent()) {
             Option existingOption = optionalOption.get();
 
-            // Delete the associated image file if it exists
             if (existingOption.getImage() != null) {
                 File imageFile = new File(uploadPath, existingOption.getImage());
                 if (imageFile.exists()) {
                     if (!imageFile.delete()) {
-                        // Log or handle if the file deletion fails
                         System.err.println("Impossible de supprimer le fichier image: " + imageFile.getPath());
                     }
                 }
             }
 
-            // Delete the Option entity from the repository
             optionRepository.delete(existingOption);
         } else {
             throw new RuntimeException("Option non trouvé avec id: " + optionId);
@@ -191,7 +166,6 @@ public class OptionService implements IOptionService {
             phoneData.put(phoneTitle, totalQuantity);
             phoneOptionsTotal.add(phoneData);
         }
-
         return phoneOptionsTotal;
     }
 }

@@ -19,8 +19,6 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-//@RequestMapping("/api/model")
-//@CrossOrigin(origins="http://localhost:4200")
 public class ModelController {
     @Autowired
     IModelService modelService;
@@ -28,13 +26,11 @@ public class ModelController {
     @Autowired
     ModelRepository modelRepository;
 
-
-
-
     @PostMapping("/admin/model/{phoneId}/add-model")
     @ResponseBody
     public ResponseEntity<?> createModel(@RequestParam("title") String title,
-                                             @RequestParam("file") MultipartFile file, @PathVariable("phoneId") Long phoneId) {
+                                         @RequestParam("file") MultipartFile file,
+                                         @PathVariable("phoneId") Long phoneId) {
 
         try {
             if (modelRepository.findByTitle(title)!= null) {
@@ -51,7 +47,6 @@ public class ModelController {
         }  catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     @GetMapping("/api/model/find-all-models")
@@ -79,7 +74,6 @@ public class ModelController {
         }
     }
 
-
     @GetMapping("/api/model/find-model/{modelId}")
     @ResponseBody
     public ResponseEntity<Model> getModelById(@PathVariable("modelId") long modelId) {
@@ -93,7 +87,6 @@ public class ModelController {
             throw new RuntimeException("Impossible de récupérer le modèle: " + e.getMessage(), e);
         }
     }
-
 
     @PutMapping("/admin/model/update-model/{id}")
     @ResponseBody
@@ -111,7 +104,6 @@ public class ModelController {
             response.put("message", "Le nom du modèle existe déjà, veuillez en choisir un autre.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-
         try {
             Model modelToUpdate = new Model();
             modelToUpdate.setTitle(title);
@@ -124,7 +116,6 @@ public class ModelController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     @DeleteMapping("/admin/model/delete-model/{id}")
     @ResponseBody

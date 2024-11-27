@@ -34,14 +34,9 @@ public class UserService implements IUserService{
 
     @Override
     public User createUser(User user) {
-        // Encode the password provided in the request
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        // Set the default role and validity
         user.setRole(Role.SUPPLIER);
         user.setValid(false);
-
-        // Save the user
         return userRepository.save(user);
     }
 
@@ -66,7 +61,6 @@ public class UserService implements IUserService{
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
-        // Toggle the valid field
         user.setValid(!user.isValid());
         return userRepository.save(user);
     }
@@ -77,20 +71,15 @@ public class UserService implements IUserService{
 
     @Override
     public ResponseEntity<?> updateProfil(User updatedUser) {
-        // Get the current authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = authentication.getName(); // Get the username of the authenticated user
-
-        // Fetch the user by username directly
         User existingUser = userRepository.findByUsername(currentUsername);
 
         if (existingUser != null) {
-            // Update user details
             existingUser.setUsername(updatedUser.getUsername());
             existingUser.setPhone(updatedUser.getPhone());
             existingUser.setAddress(updatedUser.getAddress());
             existingUser.setCity(updatedUser.getCity());
-
 
             User savedUser = userRepository.save(existingUser);
             UserDetails userDetails = userDetailsService.loadUserByUsername(savedUser.getUsername());
@@ -98,7 +87,6 @@ public class UserService implements IUserService{
             String newToken = jwtUtil.generateToken(userDetails);
             return ResponseEntity.ok(savedUser);
         } else {
-            // If the user is not found, return an error response
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Utilisateur non trouvé");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
@@ -132,10 +120,8 @@ public class UserService implements IUserService{
 
 
     private void saveResetCode(User user, String resetCode) {
-        // Delete any existing reset code for the user
         passwordResetCodeRepository.deleteByUser(user);
 
-        // Create and save the new reset code
         PasswordResetCode passwordResetCode = new PasswordResetCode();
         passwordResetCode.setCode(resetCode);
         passwordResetCode.setUser(user);

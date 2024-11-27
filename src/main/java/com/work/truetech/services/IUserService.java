@@ -10,11 +10,10 @@ import java.util.List;
 
 public interface IUserService {
     User createUser(User user);
-    public void deleteUser(long id);
-    public User retrieveUserById(long id);
+    void deleteUser(long id);
+    User retrieveUserById(long id);
     List<User> retrieveAllUsers();
     User toggleUserValidity(Long userId);
     long countAllUsers();
     ResponseEntity<?> updateProfil( User user);
-
 }

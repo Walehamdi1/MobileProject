@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-//@RequestMapping("/api/option")
-//@CrossOrigin(origins="http://localhost:4200")
 public class OptionController {
     @Autowired
     IOptionService optionService;
@@ -65,7 +63,6 @@ public class OptionController {
         }  catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     @GetMapping("/api/option/find-all-options")
@@ -93,7 +90,6 @@ public class OptionController {
         }
     }
 
-
     @GetMapping("/api/option/find-option/{optionId}")
     @ResponseBody
     public ResponseEntity<Option> getOptionById(@PathVariable("optionId") long optionId) {
@@ -103,7 +99,6 @@ public class OptionController {
         } catch (ResourceAccessException ex) {
             throw new ResourceAccessException("Problème de réseau rencontré lors de la récupération de l'option.");
         } catch (Exception e) {
-            // Rethrow the exception to be handled by GlobalExceptionHandler
             throw new RuntimeException("Impossible de récupérer l'option: " + e.getMessage(), e);
         }
     }
@@ -120,15 +115,12 @@ public class OptionController {
                                           @RequestParam("quantity") int quantity,
                                           @RequestParam(value = "file", required = false) MultipartFile file) {
 
-        // Retrieve the existing option by ID
         Optional<Option> existingOptionOpt = optionRepository.findById(optionId);
         if (!existingOptionOpt.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Option non trouvé avec id: " + optionId);
         }
 
         Option existingOption = existingOptionOpt.get();
-
-        // Check if the title is being changed to one that already exists for another option
         if (!title.equals(existingOption.getTitle()) && optionRepository.findByTitle(title) != null) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Le nom de l'option existe déjà, veuillez en choisir un autre.");
@@ -136,7 +128,6 @@ public class OptionController {
         }
 
         try {
-            // Create an updated Option object with the provided details
             Option optionToUpdate = new Option();
             optionToUpdate.setTitle(title);
             optionToUpdate.setDescription(description);
@@ -146,7 +137,6 @@ public class OptionController {
             optionToUpdate.setQuantity(quantity);
             optionToUpdate.setOptionType(optionType);
 
-            // Call the service to update the option
             Option updatedOption = optionService.updateOption(optionId, optionToUpdate, file);
             return new ResponseEntity<>(updatedOption, HttpStatus.OK);
         } catch (ResourceAccessException ex) {
@@ -155,7 +145,6 @@ public class OptionController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     @DeleteMapping("/admin/option/delete-option/{id}")
     @ResponseBody
@@ -174,7 +163,6 @@ public class OptionController {
         } catch (ResourceAccessException ex) {
             throw new ResourceAccessException("Problème de réseau rencontré.");
         } catch (Exception e) {
-            // Rethrow the exception to be handled by GlobalExceptionHandler
             throw new RuntimeException("Impossible de récupérer le total des options achetées: " + e.getMessage(), e);
         }
     }

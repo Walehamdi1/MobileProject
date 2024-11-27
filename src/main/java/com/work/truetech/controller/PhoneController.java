@@ -62,7 +62,6 @@ public class PhoneController {
         } catch (ResourceAccessException ex) {
             throw new ResourceAccessException("Problème de réseau rencontré lors de la récupération des téléphones.");
         } catch (Exception e) {
-            // Rethrow the exception to be handled by GlobalExceptionHandler
             throw new RuntimeException("Impossible de récupérer les téléphones: " + e.getMessage(), e);
         }
     }
@@ -84,15 +83,12 @@ public class PhoneController {
                                          @RequestParam(value = "title", required = false) String title,
                                          @RequestParam(value = "file", required = false) MultipartFile file) {
 
-        // Retrieve the existing phone by ID
         Optional<Phone> existingPhoneOpt = phoneRepository.findById(phoneId);
         if (!existingPhoneOpt.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Phone avec id " + phoneId + " non trouvé");
         }
 
         Phone existingPhone = existingPhoneOpt.get();
-
-        // Perform the duplicate name check only if the title is being changed
         if (title != null && !title.equals(existingPhone.getTitle()) && phoneRepository.findByTitle(title) != null) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Le nom de l'option existe déjà, veuillez en choisir un autre.");
@@ -100,11 +96,9 @@ public class PhoneController {
         }
 
         try {
-            // Create an updated Phone object with the provided title
             Phone phoneToUpdate = new Phone();
             phoneToUpdate.setTitle(title != null ? title : existingPhone.getTitle());
 
-            // Call the service to update the phone
             Phone updatedPhone = iPhoneService.updatePhone(phoneId, phoneToUpdate, file);
             return new ResponseEntity<>(updatedPhone, HttpStatus.OK);
         } catch (ResourceAccessException ex) {
@@ -124,6 +118,5 @@ public class PhoneController {
             throw new ResourceAccessException("Problème de réseau rencontré.");
         }
     }
-
 
 }

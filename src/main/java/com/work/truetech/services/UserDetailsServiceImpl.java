@@ -42,7 +42,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         );
     }
     private Collection<? extends GrantedAuthority> getAuthorities(User user) {
-        // Convert roles to Spring Security authorities
         return Arrays.stream(user.getRole().name().split(","))
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());

@@ -32,7 +32,6 @@ public class CategoryController {
         }
     }
 
-
     @GetMapping("/api/category/find")
     public ResponseEntity<List<Category>> getAllCategories() {
         List<Category> categories = categoryService.retrieveCategory();
@@ -59,7 +58,6 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
-
 
     @DeleteMapping("/admin/category/delete/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable("id") Long id) {

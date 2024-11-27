@@ -11,7 +11,6 @@ public interface IFactureService {
     List<Facture> retrieveAllFacture();
     void cancelFacture(Long factureId);
     double calculateTotalSumOfAllFactures();
-    long countAllFactures();
     Facture toggleFactureStatus(Long factureId);
     Facture updateFactureStatus(Long factureId, Status newStatus);
     void deleteFacture();

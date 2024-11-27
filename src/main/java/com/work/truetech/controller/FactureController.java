@@ -54,7 +54,6 @@ public class FactureController {
             response.put("message", "Échec de la création de la facture: " + e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     @DeleteMapping("/{id}/cancel")
@@ -82,7 +81,6 @@ public class FactureController {
         } catch (ResourceAccessException ex) {
             throw new ResourceAccessException("Problème de réseau rencontré lors de la récupération des factures.");
         } catch (Exception e) {
-            // Rethrow the exception to be handled by GlobalExceptionHandler
             throw new RuntimeException("Échec de la récupération des factures: " + e.getMessage(), e);
         }
     }
@@ -94,7 +92,6 @@ public class FactureController {
         return ResponseEntity.ok().body(Collections.singletonMap("totalCount", count));
     }
 
-
     @GetMapping("/item/{id}")
     public ResponseEntity<Map<String, List<?>>> getFactureDetails(@PathVariable Long id) {
         try {
@@ -105,7 +102,6 @@ public class FactureController {
                     .body(Collections.singletonMap("error", List.of(e.getMessage())));
         }
     }
-
 
     @GetMapping("/total-sum")
     public ResponseEntity<?> getTotalSumOfAllFactures() {

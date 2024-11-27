@@ -55,4 +55,32 @@ public class MailService {
         message.setText(body);
         mailSender.send(message);
     }
+
+    public void sendWelcomeEmail(String to, String username, String password) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setTo(to);
+        helper.setSubject("Bienvenue à notre service!");
+        String htmlContent = generateEmailContent(username, password);
+        helper.setText(htmlContent, true);
+
+        mailSender.send(message);
+    }
+
+    private String generateEmailContent(String username, String password) {
+        return """
+                <html>
+                <body>
+                <div style="font-family: Arial, sans-serif; margin: 20px;">
+                    <h1>Bienvenue à notre service!</h1>
+                    <p>Pseudo: <strong>%s</strong></p>
+                    <p>Mot de passe: <strong>%s</strong></p>
+                    <p>Cordialement,<br>TrueTech</p>
+                </div>
+                </body>
+                </html>
+                """.formatted(username, password);
+    }
+    
 }

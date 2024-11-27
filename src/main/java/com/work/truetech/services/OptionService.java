@@ -40,6 +40,9 @@ public class OptionService implements IOptionService {
         if (option.getOptionType() == null) {
             throw new RuntimeException("OptionType doit être spécifié (CLIENT, FOURNISSEUR ou LES DEUX).");
         }
+        if (option.getQuantity() == null) {
+            option.setQuantity(0);
+        }
 
         Option savedOption = optionRepository.save(option);
 

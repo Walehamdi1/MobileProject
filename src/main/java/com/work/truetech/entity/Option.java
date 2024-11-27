@@ -28,7 +28,7 @@ public class Option implements Serializable {
     private String description;
     private Long clientPrice;
     private Long supplierPrice;
-    private int quantity;
+    private Integer quantity = 0;
     private Long reparation;
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnore

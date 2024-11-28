@@ -254,6 +254,7 @@ public class FactureService implements IFactureService{
             productDTO.setQuantity(factureProduct.getQuantity());
             productDTO.setTitle(product.getTitle());
             productDTO.setPrice((long) product.getPrice());
+            productDTO.setColor(factureProduct.getColor());
 
             productDTOList.add(productDTO);
         }

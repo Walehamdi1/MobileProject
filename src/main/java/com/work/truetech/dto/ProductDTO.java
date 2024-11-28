@@ -13,4 +13,5 @@ public class ProductDTO {
     private int quantity;
     private Long price;
     private String title;
+    private String color;
 }

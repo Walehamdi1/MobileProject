@@ -101,7 +101,7 @@ public class OptionService implements IOptionService {
             existingOption.setTitle(updatedOption.getTitle() != null ? updatedOption.getTitle() : existingOption.getTitle());
             existingOption.setClientPrice(updatedOption.getClientPrice() != null ? updatedOption.getClientPrice() : existingOption.getClientPrice());
             existingOption.setSupplierPrice(updatedOption.getSupplierPrice() != null ? updatedOption.getSupplierPrice() : existingOption.getSupplierPrice());
-            existingOption.setQuantity(updatedOption.getQuantity() > 0 ? updatedOption.getQuantity() : existingOption.getQuantity());
+            existingOption.setQuantity(updatedOption.getQuantity() != null ? updatedOption.getQuantity() : existingOption.getQuantity());
             existingOption.setDescription(updatedOption.getDescription() != null ? updatedOption.getDescription() : existingOption.getDescription());
             existingOption.setReparation(updatedOption.getReparation() != null ? updatedOption.getReparation() : existingOption.getReparation());
             existingOption.setOptionType(updatedOption.getOptionType() != null ? updatedOption.getOptionType() : existingOption.getOptionType());

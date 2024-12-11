@@ -32,6 +32,7 @@ public class Facture {
     private double deliveryPrice;
     private double total;
     private Status status;
+    private String role;
 
     @Column(name = "user_id")
     private Long userId;

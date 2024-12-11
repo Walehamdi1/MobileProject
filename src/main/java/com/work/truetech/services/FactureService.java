@@ -4,6 +4,7 @@ import com.work.truetech.entity.*;
 import com.work.truetech.repository.*;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
@@ -53,11 +54,13 @@ public class FactureService implements IFactureService{
     public Facture createFacture(FactureDTO factureDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long currentUserId = null;
+        String currentRole = null;
 
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             User user = userRepository.findByUsername(userDetails.getUsername());
             currentUserId = user.getId();
+            currentRole = user.getRole().toString();
         }
 
         User currentUser = userRepository.findById(currentUserId).get();
@@ -70,6 +73,7 @@ public class FactureService implements IFactureService{
         facture.setDeliveryPrice(factureDTO.getLivraisonPrice());
         facture.setQuestions(factureDTO.getQuestions());
         facture.setUserId(currentUserId);
+        facture.setRole(currentRole);
         facture.setFactureStatus(false);
         facture.setStatus(Status.Pending);
 
@@ -91,7 +95,14 @@ public class FactureService implements IFactureService{
                 factureOption.setQuantity(optionDTO.getQuantity());
 
                 factureOptionRepository.save(factureOption);
-                double optionCost = option.getClientPrice() * optionDTO.getQuantity();
+                double optionPrice =0;
+                if(currentRole=="SUPPLIER"){
+                     optionPrice = option.getSupplierPrice();
+                }else {
+                     optionPrice = option.getClientPrice();
+                }
+
+                double optionCost = optionPrice * optionDTO.getQuantity();
                 if (factureDTO.isReparationStatus()) {
                     optionCost += option.getReparation() * optionDTO.getQuantity();
                 }
@@ -162,7 +173,7 @@ public class FactureService implements IFactureService{
     }
 
     public Page<FactureListDTO> getAllFacturesWithUsers(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "creationDate"));
         Page<Facture> facturesPage = factureRepository.findAll(pageable);
 
         Page<FactureListDTO> factureListDTOPage = facturesPage.map(facture -> {
@@ -183,6 +194,7 @@ public class FactureService implements IFactureService{
                     facture.isReparationStatus(),
                     facture.isDeliveryStatus(),
                     facture.getDeliveryPrice(),
+                    facture.getRole(),
                     facture.getQuestions(),
                     facture.getFactureOptions().stream()
                             .map(option -> new FactureOptionDTO(option.getId(), option.getQuantity()))
@@ -236,7 +248,7 @@ public class FactureService implements IFactureService{
             optionDTO.setTitle(option.getTitle());
             optionDTO.setReparation(option.getReparation());
 
-            if (facture.getUserId() == null) {
+            if (Objects.equals(facture.getRole(), "USER")) {
                 optionDTO.setPrice(option.getClientPrice());
             } else {
                 optionDTO.setPrice(option.getSupplierPrice());

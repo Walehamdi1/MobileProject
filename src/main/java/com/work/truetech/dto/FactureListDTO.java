@@ -27,6 +27,7 @@ public class FactureListDTO {
     private boolean reparationStatus;
     private boolean deliveryStatus;
     private double livraisonPrice;
+    private String role;
     private List<String> questions;
     private List<FactureOptionDTO> options;
     private List<FactureProductDto> products;

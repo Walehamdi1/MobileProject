@@ -38,4 +38,9 @@
         @OneToMany(cascade = CascadeType.ALL,mappedBy="user")
         private Set<Product> products = new HashSet<>();
 
+
+        public boolean isSupplier() {
+            return this.getRole().equals("SUPPLIER");
+        }
+
     }

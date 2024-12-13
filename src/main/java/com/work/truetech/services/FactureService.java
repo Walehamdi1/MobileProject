@@ -143,7 +143,7 @@ public class FactureService implements IFactureService{
 
     private void sendEmailNotification(Facture facture) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo("walahamdi0@gmail.com");
+        message.setTo("truetech.app@gmail.com");
         message.setSubject("New Facture Created: " + facture.getCode());
 
         StringBuilder emailText = new StringBuilder();

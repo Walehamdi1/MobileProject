@@ -46,7 +46,13 @@ public class OptionController {
             response.put("message", "Le nom de l'option existe déjà, veuillez en choisir un autre.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
+
         try {
+            if (file.getSize() > (50 * 1024 * 1024)) { // Example size limit: 50MB
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                        Map.of("message", "La taille de l'image dépasse la limite autorisée (5MB).")
+                );
+            }
             Option option = new Option();
             option.setTitle(title);
             option.setDescription(description);

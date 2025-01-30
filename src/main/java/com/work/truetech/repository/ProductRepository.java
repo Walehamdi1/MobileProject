@@ -18,11 +18,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Product findByTitle(String title);
     List<Product> findByCategory(Category category);
     @Query("SELECT p FROM Product p WHERE " +
-            "(:filter IS NULL OR LOWER(p.category.name) = LOWER(:filter)) AND " +
-            "(:search IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%')))")
+            "(:filter IS NULL OR LOWER(REPLACE(p.category.name, '&', ' and ')) LIKE LOWER(CONCAT('%', :filter, '%'))) " +
+            "AND (:search IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<Product> findProducts(@Param("filter") String filter,
                                @Param("search") String search,
                                Pageable pageable);
+
 
 
 

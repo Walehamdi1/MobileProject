@@ -82,11 +82,23 @@ public class ProductService implements IProductService {
     @Override
     public Page<Product> retrieveProductFilter(String filter, int page, String search, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        String categoryFilter = (filter.equalsIgnoreCase("all")) ? null : filter;
+
+        String categoryFilter = (filter.equalsIgnoreCase("all")) ? null : normalizeFilter(filter);
         String searchFilter = search.isEmpty() ? null : search;
 
         return productRepository.findProducts(categoryFilter, searchFilter, pageable);
     }
+
+    private String normalizeFilter(String filter) {
+        if (filter == null) return null;
+
+        return filter
+                .toLowerCase()
+                .replaceAll("[Ééèêë]", "e")  // Handle accents
+                .replaceAll("&", " and ")    // Match MySQL format for '&'
+                .trim();
+    }
+
 
     @Override
     public Product updateProduct(Long productId, Product updatedProduct, MultipartFile file) throws IOException {
